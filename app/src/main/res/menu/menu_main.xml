@@ -19,9 +19,9 @@
     <item android:id="@+id/disconnect" android:title="@string/disconnect"
         android:orderInCategory="100" app:showAsAction="always|withText" />
 
-    <item android:id="@+id/say_hello" android:title="@string/send_mesg"
+    <item android:id="@+id/say_hi_to_test" android:title="@string/send_mesg"
         android:orderInCategory="100" app:showAsAction="always|withText" />
 
-    <!--<item android:id="@+id/say_hi" android:title="@string/hi"-->
-        <!--android:orderInCategory="100" app:showAsAction="always|withText" />-->
+    <item android:id="@+id/say_hi_to_real" android:title="@string/hi"
+        android:orderInCategory="100" app:showAsAction="always|withText" />
 </menu>

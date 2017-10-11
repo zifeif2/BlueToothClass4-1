@@ -19,12 +19,16 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 //import com.win16.bluetoothclass4.connect.AcceptThread;
 import com.win16.bluetoothclass4.connect.ConnectThread;
 import com.win16.bluetoothclass4.connect.Constant;
+
+import org.w3c.dom.Text;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
@@ -47,6 +51,23 @@ public class MainActivity extends Activity {
     private Toast mToast;
    // private AcceptThread mAcceptThread;
     private ConnectThread mConnectThread;
+
+
+    private TextView position_tv;
+    private TextView velocity_tv;
+    private TextView resistance_tv;
+    private TextView bimuscle_tv;
+    private TextView trimuscletv;
+    private TextView server_tv;
+    private Button start_btn;
+    private Button pause_btn;
+    private Button stop_btn;
+    private float maxPosition=0;
+    private float maxVelocity = 0;
+    private float maxResistant = 0;
+    public static final String intent_position = "Position";
+    public static final String intent_velocity = "Velocity";
+    public static final String intent_resistant = "Resistant";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,14 +154,50 @@ public class MainActivity extends Activity {
         mAdapter = new DeviceAdapter(mDeviceList, this);
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(bindDeviceClick);
+        position_tv = (TextView) findViewById(R.id.datarecord_position);
+        resistance_tv = (TextView) findViewById(R.id.datarecord_resistance);
+        velocity_tv = (TextView) findViewById(R.id.datarecord_velocity);
+        bimuscle_tv = (TextView) findViewById(R.id.datarecord_bimuscleemg);
+        trimuscletv = (TextView) findViewById(R.id.datarecord_trisemg);
+        server_tv = (TextView) findViewById(R.id.server_tv);
+        start_btn = (Button) findViewById(R.id.datarecord_start);
+        pause_btn =(Button) findViewById(R.id.datarecord_pause);
+        stop_btn =(Button) findViewById(R.id.datarecord_stop);
+        start_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                say("q");
+                start_btn.setClickable(false);
+                pause_btn.setClickable(true);
+            }
+        });
+
+        pause_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                say("s");
+                start_btn.setClickable(true);
+                pause_btn.setClickable(false);
+            }
+        });
+
+        stop_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this, SummaryActivity.class);
+                i.putExtra(intent_position, maxPosition);
+                i.putExtra(intent_velocity, maxVelocity);
+                i.putExtra(intent_resistant, maxResistant);
+                startActivity(i);
+            }
+        });
+
+
     }
 
     @Override
     protected void onDestroy() {
-//        super.onDestroy();
-//        if( mAcceptThread != null) {
-//            mAcceptThread.cancel();
-//        }
+
         if( mConnectThread != null) {
             mConnectThread.cancel();
         }
@@ -189,43 +246,24 @@ public class MainActivity extends Activity {
             mAdapter.refresh(mBondedDeviceList);
             mListView.setOnItemClickListener(bindedDeviceClick);
         }
-//        }
-//        else if( id == R.id.listening) {
-//            if( mAcceptThread != null) {
-//                mAcceptThread.cancel();
-//            }
-//            mAcceptThread = new AcceptThread(mController.getAdapter(), mUIHandler);
-//            mAcceptThread.start();
-//        }
-//        else if( id == R.id.stop_listening) {
-//            if( mAcceptThread != null) {
-//                mAcceptThread.cancel();
-//            }
-//        }
         else if( id == R.id.disconnect) {
             if( mConnectThread != null) {
                 mConnectThread.cancel();
+                server_tv.setText(getString(R.string.no_connection));
             }
         }
-        else if( id == R.id.say_hello) {
+        else if( id == R.id.say_hi_to_test) {
            say("*");
         }
-//        else if( id == R.id.say_hi) {
-//            say("Hi");
-//        }
+        else if( id == R.id.say_hi_to_real) {
+            say("q");
+        }
 
         return super.onOptionsItemSelected(item);
     }
 
     private void say(String word) {
-//        if( mAcceptThread != null) {
-//            try {
-//                mAcceptThread.sendData(word.getBytes("utf-8"));
-//            } catch (UnsupportedEncodingException e) {
-//                e.printStackTrace();
-//            }
-//        }
-        word = "r";
+
         if( mConnectThread != null) {
             try {
                 mConnectThread.sendData(word.getBytes("utf-8"));
@@ -294,19 +332,45 @@ public class MainActivity extends Activity {
                     setProgressBarIndeterminateVisibility(false);
                     break;
                 case Constant.MSG_GOT_DATA:
-                    showToast("data: "+String.valueOf(msg.obj));
+                    String str = String.valueOf(msg.obj);
+                    updateData(str);
                     //Log.e("MainActivity Gotdata", String.valueOf(msg.obj));
                     break;
                 case Constant.MSG_ERROR:
                     showToast("error: "+String.valueOf(msg.obj));
                     break;
                 case Constant.MSG_CONNECTED_TO_SERVER:
-                    showToast("Connected to Server");
-                    break;
-                case Constant.MSG_GOT_A_CLINET:
-                    showToast("Got a Client");
+                    String name = String.valueOf(msg.obj);
+                    showToast("Connected to Server "+name);
+                    server_tv.setText("Connected to Server "+name);
                     break;
             }
         }
+    }
+
+    private void updateData(String str){
+        if(str.length() < 10){
+            position_tv.setText(str);
+            velocity_tv.setText(str);
+            bimuscle_tv.setText(str);
+            trimuscletv.setText(str);
+            resistance_tv.setText(str);
+            return;
+        }
+        else{
+            String[] value = str.split(",");
+            position_tv.setText(value[0]);
+            velocity_tv.setText(value[0]);
+            bimuscle_tv.setText(value[0]);
+            trimuscletv.setText(value[0]);
+            resistance_tv.setText(value[0]);
+            int tmpposition = Integer.parseInt(value[1]);
+            int tmpv = Integer.parseInt(value[2]);
+            int tmpr = Integer.parseInt(value[3]);
+            maxPosition = maxPosition < tmpposition? tmpposition: maxPosition;
+            maxResistant = maxResistant < tmpr? tmpr: maxResistant;
+            maxVelocity = maxVelocity < tmpv? tmpv: maxVelocity;
+        }
+
     }
 }

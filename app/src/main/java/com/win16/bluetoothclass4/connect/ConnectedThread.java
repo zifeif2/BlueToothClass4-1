@@ -66,6 +66,7 @@ public class ConnectedThread extends Thread {
 //                }
             try {
                 bytes += mmInStream.read(buffer, bytes, buffer.length - bytes);
+                String tmp = new String(buffer);
                 for(int i = begin; i < bytes; i++) {
                     if(buffer[i] == "#".getBytes()[0]) {
 

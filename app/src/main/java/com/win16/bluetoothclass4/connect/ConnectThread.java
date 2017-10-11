@@ -104,7 +104,7 @@ public class ConnectThread extends Thread {
 
     }
     private void manageConnectedSocket(BluetoothSocket mmSocket) {
-        mHandler.sendEmptyMessage(Constant.MSG_CONNECTED_TO_SERVER);
+        mHandler.obtainMessage(Constant.MSG_CONNECTED_TO_SERVER,mmSocket.getRemoteDevice().getName()).sendToTarget();//apple
         mConnectedThread = new ConnectedThread(mmSocket, mHandler);
         mConnectedThread.start();
     }
