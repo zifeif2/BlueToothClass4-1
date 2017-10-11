@@ -11,4 +11,36 @@
     <string name="disconnect">Disconnect</string>
     <string name="send_mesg">Record Data</string>
     <string name="hi">Hi</string>
+
+    <!-- Patient Info Category Spinner -->
+    <string-array name="patient_category">
+        <item>Healthy</item>
+        <item>Spasticity</item>
+        <item>Rigidity</item>
+    </string-array>
+    <!-- Patient Info Height ft -->
+    <string-array name="patient_ft">
+        <item>1 ft</item>
+        <item>2 ft</item>
+        <item>3 ft</item>
+        <item>4 ft</item>
+        <item>5 ft</item>
+        <item>6 ft</item>
+        <item>7 ft</item>
+    </string-array>
+    <!-- Patient Info Height in -->
+    <string-array name="patient_in">
+        <item>0 in</item>
+        <item>1 in</item>
+        <item>2 in</item>
+        <item>3 in</item>
+        <item>4 in</item>
+        <item>5 in</item>
+        <item>6 in</item>
+        <item>7 in</item>
+        <item>8 in</item>
+        <item>9 in</item>
+        <item>10 in</item>
+        <item>11 in</item>
+    </string-array>
 </resources>
