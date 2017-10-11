@@ -1,7 +1,6 @@
 package com.win16.bluetoothclass4;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -12,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -34,8 +35,16 @@ import java.util.List;
 /**
  * Created by Rex on 2015/5/27.
  */
-public class MainActivity extends Activity {
-
+public class MainActivity extends AppCompatActivity {
+    // extra Tags
+    private static final String EXTRA_SUBJECT_ID = "com.win16.bluetoothclass4.subject_id";
+    private static final String EXTRA_CATEGORY_SELECTED = "com.win16.bluetoothclass4.category_selected";
+    private static final String EXTRA_HEIGHT_FEET = "com.win16.bluetoothclass4.height_feet";
+    private static final String EXTRA_HEIGHT_INCH = "com.win16.bluetoothclass4.height_inch";
+    private static final String EXTRA_FOREARM_LENGTH = "com.win16.bluetoothclass4.forearm_length";
+    private static final String EXTRA_SUBJECT_WEIGHT = "com.win16.bluetoothclass4.subject_weight";
+    private static final String EXTRA_SUBJECT_DOB = "com.win16.bluetoothclass4.subject_dob";
+    private static final String EXTRA_SUBJECT_TEST_DATE = "com.win16.bluetoothclass4.subject_test_date";
 
     public static final int REQUEST_CODE = 0;
     private List<BluetoothDevice> mDeviceList = new ArrayList<>();
@@ -47,6 +56,8 @@ public class MainActivity extends Activity {
     private Toast mToast;
    // private AcceptThread mAcceptThread;
     private ConnectThread mConnectThread;
+
+    private Button end_Button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,11 +144,30 @@ public class MainActivity extends Activity {
         mAdapter = new DeviceAdapter(mDeviceList, this);
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(bindDeviceClick);
+
+        end_Button = (Button)findViewById(R.id.end_button);
+        end_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, PatientActivity.class);
+
+                intent.putExtra(EXTRA_SUBJECT_ID, getIntent().getStringExtra(EXTRA_SUBJECT_ID));
+                intent.putExtra(EXTRA_CATEGORY_SELECTED, getIntent().getStringExtra(EXTRA_CATEGORY_SELECTED));
+                intent.putExtra(EXTRA_HEIGHT_FEET, getIntent().getStringExtra(EXTRA_HEIGHT_FEET));
+                intent.putExtra(EXTRA_HEIGHT_INCH, getIntent().getStringExtra(EXTRA_HEIGHT_INCH));
+                intent.putExtra(EXTRA_FOREARM_LENGTH, getIntent().getStringExtra(EXTRA_FOREARM_LENGTH));
+                intent.putExtra(EXTRA_SUBJECT_WEIGHT, getIntent().getStringExtra(EXTRA_SUBJECT_WEIGHT));
+                intent.putExtra(EXTRA_SUBJECT_DOB, getIntent().getStringExtra(EXTRA_SUBJECT_DOB));
+                intent.putExtra(EXTRA_SUBJECT_TEST_DATE, getIntent().getStringExtra(EXTRA_SUBJECT_TEST_DATE));
+
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
     protected void onDestroy() {
-//        super.onDestroy();
+        super.onDestroy();
 //        if( mAcceptThread != null) {
 //            mAcceptThread.cancel();
 //        }
@@ -267,7 +297,7 @@ public class MainActivity extends Activity {
 
     private void initActionBar() {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        getActionBar().setDisplayUseLogoEnabled(false);
+        getSupportActionBar().setDisplayUseLogoEnabled(false);
         setProgressBarIndeterminate(true);
         try {
             ViewConfiguration config = ViewConfiguration.get(this);
