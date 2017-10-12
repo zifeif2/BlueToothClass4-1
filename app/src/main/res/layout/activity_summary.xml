@@ -93,7 +93,7 @@
             android:layout_width="0dp"
             android:layout_weight="0.5"
             android:layout_height="wrap_content"
-            android:text="N/m"
+            android:text="N*m"
             android:textSize="18dp"/>
     </LinearLayout>
     <LinearLayout
@@ -107,7 +107,7 @@
             android:layout_height="wrap_content"
             android:text="Biceps Muscle Status:"
             android:textSize="18dp"
-            android:id="@+id/datasummary_bistatus_tv"
+
             />
         <TextView
             android:layout_width="0dp"
@@ -116,6 +116,7 @@
             android:text="demo"
             android:textSize="18dp"
             android:gravity="center"
+            android:id="@+id/datasummary_bistatus_tv"
             />
 
     </LinearLayout>
@@ -146,9 +147,12 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:textSize="18dp"
+        android:padding="5dp"
         android:id="@+id/datasummary_extrainfo_tv"
         android:text="extra"
-        android:visibility="gone"/>
+        android:visibility="visible"/>
 
     <LinearLayout
         android:layout_width="match_parent"

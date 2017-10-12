@@ -1,7 +1,6 @@
 package com.win16.bluetoothclass4;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -12,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,9 +36,10 @@ import java.util.List;
 /**
  * Created by Rex on 2015/5/27.
  */
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
     public static final String EXTRA_SUBJECT_ID = "com.win16.bluetoothclass4.subject_id";
+    public static final String EXTRA_SUBJECT_GENDER = "com.win16.bluetoothclass4.subject_gender";
     public static final String EXTRA_CATEGORY_SELECTED = "com.win16.bluetoothclass4.category_selected";
     public static final String EXTRA_HEIGHT_FEET = "com.win16.bluetoothclass4.height_feet";
     public static final String EXTRA_HEIGHT_INCH = "com.win16.bluetoothclass4.height_inch";
@@ -46,9 +47,11 @@ public class MainActivity extends Activity {
     public static final String EXTRA_SUBJECT_WEIGHT = "com.win16.bluetoothclass4.subject_weight";
     public static final String EXTRA_SUBJECT_DOB = "com.win16.bluetoothclass4.subject_dob";
     public static final String EXTRA_SUBJECT_TEST_DATE = "com.win16.bluetoothclass4.subject_test_date";
-    public static final String INTENT_POSITION = "com.win16.bluetoothclass4.position";
-    public static final String INTENT_VELOCITY = "com.win16.bluetoothclass4.velocity";
-    public static final String INTENT_RESISTANT = "com.win16.bluetoothclass4.resistant";
+    public static final String EXTRA_POSITION = "com.win16.bluetoothclass4.position";
+    public static final String EXTRA_VELOCITY = "com.win16.bluetoothclass4.velocity";
+    public static final String EXTRA_RESISTANT = "com.win16.bluetoothclass4.resistant";
+    public static final String EXTRA_BICOUNT = "com.win16.bluetoothclass4.bicount";
+    public static final String EXTRA_TRICOUNT = "com.win16.bluetoothclass4.tricount";
     public static final int REQUEST_CODE = 0;
     private List<BluetoothDevice> mDeviceList = new ArrayList<>();
     private List<BluetoothDevice> mBondedDeviceList = new ArrayList<>();
@@ -60,6 +63,14 @@ public class MainActivity extends Activity {
    // private AcceptThread mAcceptThread;
     private ConnectThread mConnectThread;
 
+    String subjectID;
+    String categorySelected;
+    String heightFeet;
+    String heightInch;
+    String forearmLength;
+    String subjectWeight;
+    String subjectDOB;
+    String subjectTestDate;
 
     private TextView position_tv;
     private TextView velocity_tv;
@@ -73,20 +84,69 @@ public class MainActivity extends Activity {
     private float maxPosition=0;
     private float maxVelocity = 0;
     private float maxResistant = 0;
+    BluetoothDevice device;
 
+    int bi_sample_counter = 0;
+    int tri_sample_counter = 0;
+    private static final float THRESHOLD = 1.0f;
+    boolean start_btn_pressed = false;
+    //J
+//    BluetoothConnection mBluetoothConnection;
+//    BluetoothAdapter mBluetoothAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         initActionBar();
         setContentView(R.layout.activity_main);
         initUI();
-
         registerBluetoothReceiver();
         mController.turnOnBlueTooth(this, REQUEST_CODE);
+        Intent i = getIntent();
+        forearmLength = i.getStringExtra(EXTRA_FOREARM_LENGTH);
+
+////J
+//        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter("sentArduinoData"));
+//        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
     }
+    BroadcastReceiver mJReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String text = intent.getStringExtra("theData");
+
+            updateData(text);
+        }
+    };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+//        if(device!=null) {
+//            mConnectThread = new ConnectThread(device, mController.getAdapter(), mUIHandler);
+//            mConnectThread.start();
+//        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        maxPosition=0;
+         maxVelocity = 0;
+        maxResistant = 0;
+        position_tv.setText("0.0");
+        velocity_tv.setText("0.0");
+        bimuscle_tv.setText("0.0");
+        trimuscletv.setText("0.0");
+        resistance_tv.setText("0.0");
+
+    }
+
+    //    /*Helper function J */
+//    public void startBtConnection(BluetoothDevice device, UUID uuid){
+//        mBluetoothConnection = new BluetoothConnection(MainActivity.this, mBluetoothAdapter);
+//        mBluetoothConnection.startClient(device, uuid);
+//    }
 
     private void registerBluetoothReceiver() {
         IntentFilter filter = new IntentFilter();
@@ -138,6 +198,7 @@ public class MainActivity extends Activity {
                 BluetoothDevice remoteDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if( remoteDevice == null ) {
                     showToast("no device");
+                    server_tv.setText(getString(R.string.no_connection));
                     return;
                 }
                 int status = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE,0);
@@ -173,6 +234,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View view) {
                 say("q");
+                start_btn_pressed = true;
                 start_btn.setClickable(false);
                 pause_btn.setClickable(true);
             }
@@ -182,6 +244,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View view) {
                 say("s");
+                start_btn_pressed = false;
                 start_btn.setClickable(true);
                 pause_btn.setClickable(false);
             }
@@ -190,10 +253,14 @@ public class MainActivity extends Activity {
         stop_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                say("s");
+                start_btn_pressed = false;
+                start_btn.setClickable(true);
+                pause_btn.setClickable(false);
                 Intent intent = new Intent(MainActivity.this, SummaryActivity.class);
-                intent.putExtra(INTENT_POSITION, maxPosition);
-                intent.putExtra(INTENT_VELOCITY, maxVelocity);
-                intent.putExtra(INTENT_RESISTANT, maxResistant);
+                intent.putExtra(EXTRA_POSITION, maxPosition);
+                intent.putExtra(EXTRA_VELOCITY, maxVelocity);
+                intent.putExtra(EXTRA_RESISTANT, maxResistant);
                 intent.putExtra(EXTRA_SUBJECT_ID, getIntent().getStringExtra(EXTRA_SUBJECT_ID));
                 intent.putExtra(EXTRA_CATEGORY_SELECTED, getIntent().getStringExtra(EXTRA_CATEGORY_SELECTED));
                 intent.putExtra(EXTRA_HEIGHT_FEET, getIntent().getStringExtra(EXTRA_HEIGHT_FEET));
@@ -202,7 +269,8 @@ public class MainActivity extends Activity {
                 intent.putExtra(EXTRA_SUBJECT_WEIGHT, getIntent().getStringExtra(EXTRA_SUBJECT_WEIGHT));
                 intent.putExtra(EXTRA_SUBJECT_DOB, getIntent().getStringExtra(EXTRA_SUBJECT_DOB));
                 intent.putExtra(EXTRA_SUBJECT_TEST_DATE, getIntent().getStringExtra(EXTRA_SUBJECT_TEST_DATE));
-
+                intent.putExtra(EXTRA_BICOUNT, bi_sample_counter);
+                intent.putExtra(EXTRA_TRICOUNT, tri_sample_counter);
                 startActivity(intent);
             }
         });
@@ -215,8 +283,8 @@ public class MainActivity extends Activity {
         super.onDestroy();
         if( mConnectThread != null) {
             mConnectThread.cancel();
+            mConnectThread = null;
         }
-
         unregisterReceiver(mReceiver);
     }
 
@@ -249,21 +317,23 @@ public class MainActivity extends Activity {
         if (id == R.id.enable_visiblity) {
             mController.enableVisibly(this);
         }
-        else if( id == R.id.find_device) {
+        if( id == R.id.find_device) {
             //look for device
             mAdapter.refresh(mDeviceList);
             mController.findDevice();
             mListView.setOnItemClickListener(bindDeviceClick);
         }
-        else if (id == R.id.bonded_device) {
+         if (id == R.id.bonded_device) {
             //look for the bounded device
             mBondedDeviceList = mController.getBondedDeviceList();
+            //J mBondedDeviceList.addAll(mBluetoothAdapter.getBondedDevices());
             mAdapter.refresh(mBondedDeviceList);
             mListView.setOnItemClickListener(bindedDeviceClick);
         }
         else if( id == R.id.disconnect) {
             if( mConnectThread != null) {
                 mConnectThread.cancel();
+                mConnectThread = null;
                 server_tv.setText(getString(R.string.no_connection));
             }
         }
@@ -289,6 +359,7 @@ public class MainActivity extends Activity {
         else{
             Log.e("Main Activity", "mConnect Thread is null");
         }
+        // J mBluetoothConnection.write(word.getBytes());
     }
 
     private AdapterView.OnItemClickListener bindDeviceClick = new AdapterView.OnItemClickListener() {
@@ -305,23 +376,30 @@ public class MainActivity extends Activity {
     private AdapterView.OnItemClickListener bindedDeviceClick = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            BluetoothDevice device = mBondedDeviceList.get(i);
+             device = mBondedDeviceList.get(i);
             if( mConnectThread != null) {
                 mConnectThread.cancel();
+                mConnectThread = null;
             }
+
+            // TODO:  might have problem with connect thread
+          //J  startBtConnection(device, Constant.CONNECTTION_UUID);
+
+
             mConnectThread = new ConnectThread(device, mController.getAdapter(), mUIHandler);
             mConnectThread.start();
-//            if(mConnectThread == null){
-//                mConnectThread = new ConnectThread(device, mController.getAdapter(), mUIHandler);
-//                mConnectThread.start();
-//            }
+            if(mConnectThread == null){
+                mConnectThread = new ConnectThread(device, mController.getAdapter(), mUIHandler);
+                mConnectThread.start();
+            }
         }
     };
 
     private void initActionBar() {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        getActionBar().setDisplayUseLogoEnabled(false);
-        setProgressBarIndeterminate(true);
+
+        getSupportActionBar().setDisplayUseLogoEnabled(false);
+       // setProgressBarIndeterminate(true);
         try {
             ViewConfiguration config = ViewConfiguration.get(this);
             Field menuKeyField = ViewConfiguration.class
@@ -347,8 +425,10 @@ public class MainActivity extends Activity {
                     setProgressBarIndeterminateVisibility(false);
                     break;
                 case Constant.MSG_GOT_DATA:
-                    String str = String.valueOf(msg.obj);
-                    updateData(str);
+                    if(start_btn_pressed) {
+                        String str = String.valueOf(msg.obj);
+                        updateData(str);
+                    }
                     //Log.e("MainActivity Gotdata", String.valueOf(msg.obj));
                     break;
                 case Constant.MSG_ERROR:
@@ -377,11 +457,15 @@ public class MainActivity extends Activity {
             float tmpposition = Float.parseFloat(value[1]);
             float tmpv = Math.abs(Float.parseFloat(value[2]));
             float tmpr = Math.abs(Float.parseFloat(value[0]));
+            float bi_tmp = Math.abs(Float.parseFloat(value[3]));
             position_tv.setText(value[1]);
             velocity_tv.setText(value[2]);
             bimuscle_tv.setText(value[3]);
             trimuscletv.setText(value[4]);
-            resistance_tv.setText(value[0]);
+            bi_sample_counter = bi_tmp > THRESHOLD? bi_sample_counter+1: 0;
+            tri_sample_counter = bi_tmp > THRESHOLD? tri_sample_counter+1: 0;
+            tmpr = Float.parseFloat(forearmLength)*tmpr;
+            resistance_tv.setText(""+tmpr);
             maxPosition = maxPosition < tmpposition? tmpposition: maxPosition;
             maxResistant = maxResistant < tmpr? tmpr: maxResistant;
             maxVelocity = maxVelocity < tmpv? tmpv: maxVelocity;

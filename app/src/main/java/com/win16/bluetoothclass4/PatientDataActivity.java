@@ -11,6 +11,16 @@ import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
 
+import static com.win16.bluetoothclass4.MainActivity.EXTRA_CATEGORY_SELECTED;
+import static com.win16.bluetoothclass4.MainActivity.EXTRA_FOREARM_LENGTH;
+import static com.win16.bluetoothclass4.MainActivity.EXTRA_HEIGHT_FEET;
+import static com.win16.bluetoothclass4.MainActivity.EXTRA_HEIGHT_INCH;
+import static com.win16.bluetoothclass4.MainActivity.EXTRA_SUBJECT_DOB;
+import static com.win16.bluetoothclass4.MainActivity.EXTRA_SUBJECT_ID;
+import static com.win16.bluetoothclass4.MainActivity.EXTRA_SUBJECT_TEST_DATE;
+import static com.win16.bluetoothclass4.MainActivity.EXTRA_SUBJECT_WEIGHT;
+import static com.win16.bluetoothclass4.MainActivity.EXTRA_SUBJECT_GENDER;
+
 //import com.win16.bluetoothclass3.R;
 
 public class PatientDataActivity extends AppCompatActivity {
@@ -23,19 +33,21 @@ public class PatientDataActivity extends AppCompatActivity {
     String subjectWeight;
     String subjectDOB;
     String subjectTestDate;
+    String subjectGender;
 
-    //intent extra tags
-    private static final String EXTRA_SUBJECT_ID = "com.win16.bluetoothclass4.subject_id";
-    private static final String EXTRA_CATEGORY_SELECTED = "com.win16.bluetoothclass4.category_selected";
-    private static final String EXTRA_HEIGHT_FEET = "com.win16.bluetoothclass4.height_feet";
-    private static final String EXTRA_HEIGHT_INCH = "com.win16.bluetoothclass4.height_inch";
-    private static final String EXTRA_FOREARM_LENGTH = "com.win16.bluetoothclass4.forearm_length";
-    private static final String EXTRA_SUBJECT_WEIGHT = "com.win16.bluetoothclass4.subject_weight";
-    private static final String EXTRA_SUBJECT_DOB = "com.win16.bluetoothclass4.subject_dob";
-    private static final String EXTRA_SUBJECT_TEST_DATE = "com.win16.bluetoothclass4.subject_test_date";
+//    //intent extra tags
+//    private static final String EXTRA_SUBJECT_ID = "com.win16.bluetoothclass4.subject_id";
+//    private static final String EXTRA_CATEGORY_SELECTED = "com.win16.bluetoothclass4.category_selected";
+//    private static final String EXTRA_HEIGHT_FEET = "com.win16.bluetoothclass4.height_feet";
+//    private static final String EXTRA_HEIGHT_INCH = "com.win16.bluetoothclass4.height_inch";
+//    private static final String EXTRA_FOREARM_LENGTH = "com.win16.bluetoothclass4.forearm_length";
+//    private static final String EXTRA_SUBJECT_WEIGHT = "com.win16.bluetoothclass4.subject_weight";
+//    private static final String EXTRA_SUBJECT_DOB = "com.win16.bluetoothclass4.subject_dob";
+//    private static final String EXTRA_SUBJECT_TEST_DATE = "com.win16.bluetoothclass4.subject_test_date";
 
     EditText subjectID_editText;
     Spinner category_Spinner;
+    Spinner subject_gender_Spinner;
     NumberPicker subjectHeightFeet_Spinner;
     NumberPicker subjectHeightInch_Spinner;
     EditText subjectForearmLength_editText;
@@ -68,6 +80,23 @@ public class PatientDataActivity extends AppCompatActivity {
                 R.array.patient_category, android.R.layout.simple_spinner_item);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         category_Spinner.setAdapter(spinnerAdapter);
+
+        subject_gender_Spinner = (Spinner) findViewById(R.id.patient_gender_spinner);
+        subject_gender_Spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                subjectGender = parent.getItemAtPosition(position).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // no need for implementation
+            }
+        });
+        ArrayAdapter<CharSequence> genderSpinnerAdapter = ArrayAdapter.createFromResource(this,
+                R.array.patient_gender, android.R.layout.simple_spinner_item);
+        genderSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        subject_gender_Spinner.setAdapter(genderSpinnerAdapter);
 
         subjectHeightFeet_Spinner = (NumberPicker)findViewById(R.id.patientHeightPicker_ft);
         subjectHeightFeet_Spinner.setMinValue(0);
@@ -110,6 +139,7 @@ public class PatientDataActivity extends AppCompatActivity {
                 subjectTestDate = subjectTestDate_editText.getText().toString();
 
                 intent.putExtra(EXTRA_SUBJECT_ID, subjectID);
+                intent.putExtra(EXTRA_SUBJECT_GENDER, subjectGender);
                 intent.putExtra(EXTRA_CATEGORY_SELECTED, categorySelected);
                 intent.putExtra(EXTRA_HEIGHT_FEET, heightFeet);
                 intent.putExtra(EXTRA_HEIGHT_INCH, heightInch);

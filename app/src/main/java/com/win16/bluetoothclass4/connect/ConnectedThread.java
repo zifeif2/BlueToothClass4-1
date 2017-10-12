@@ -39,32 +39,6 @@ public class ConnectedThread extends Thread {
         String a ="";
         int lastHashtag = 0;
         while (true) {
-//                try {
-//                    bytes += mmInStream.read(buffer, bytes, buffer.length - bytes);
-//                    String str = new String(buffer);
-//                    Log.e("Connected Thread", str);
-//                    int j = 0;
-//                    for(int i = 0; i < str.length(); i++){
-//                        if(str.charAt(i) == '#'){
-//                            String tmp = str.substring( j, i + 1);
-//                            Log.e("Receive something haha", a+tmp);
-//                            mHandler.obtainMessage(MSG_GOT_DATA, a+tmp).sendToTarget();
-//                            a="";
-//                            j = i+1;
-//                        }
-//                        else if(str.charAt(i) > 57 ||str.charAt(i) <48){//if there is not a number behind hash tag
-//                            a = str.substring(j, i);
-//                            break;
-//                        }
-//                    }
-//                    buffer = new byte[1024];
-//                    bytes = 0;
-//                    begin = 0;
-//
-//                } catch (IOException e) {
-//                    Log.e("Connected Thread", e.toString());
-//                    break;
-//                }
             try {
                 bytes += mmInStream.read(buffer, bytes, buffer.length - bytes);//bytes counts the valid elements in buffer
                 String tmp = new String(buffer);
@@ -80,7 +54,6 @@ public class ConnectedThread extends Thread {
                             bytes = 0;
                             begin = 0;
                         }
-
                     }
                     else {
                         if(i == buffer.length - 1) {//when the buffer becomes full and the last byte is a number

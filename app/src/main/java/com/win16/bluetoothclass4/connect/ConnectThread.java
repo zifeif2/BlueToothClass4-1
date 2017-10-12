@@ -13,7 +13,7 @@ import java.util.UUID;
  * Created by Rex on 2015/5/30.
  */
 public class ConnectThread extends Thread {
-    private static final UUID MY_UUID = UUID.fromString(Constant.CONNECTTION_UUID);
+    private static final UUID MY_UUID = Constant.CONNECTTION_UUID;
     private BluetoothSocket mmSocket;
     private final BluetoothDevice mmDevice;
     private BluetoothAdapter mBluetoothAdapter;
