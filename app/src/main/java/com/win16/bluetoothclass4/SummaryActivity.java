@@ -88,7 +88,8 @@ public class SummaryActivity extends Activity {
     private void updateUI(){
         motion_range_tv.setText(""+motion_range);
         max_r_tv.setText(""+maxr);
-        max_v_tv.setText(""+maxv);
+        String s = String.format("%.2f", maxv);
+        max_v_tv.setText(s);
         bi_status= bi_count >=100? "Active":"Passive";
         tri_status = tri_count>=100? "Active":"Passive";
         int mas;
@@ -133,6 +134,7 @@ public class SummaryActivity extends Activity {
         }
         else{
             extraInfo = "Healthy!";
+            extra_tv.setVisibility(View.GONE);
         }
     }
     private void initUI(){
@@ -150,7 +152,6 @@ public class SummaryActivity extends Activity {
             public void onClick(View view) {
                 Intent sendIntent = new Intent();
                 sendIntent.setAction(Intent.ACTION_SEND);
-
                 sendIntent.putExtra(Intent.EXTRA_TEXT,getSharedString());
                 sendIntent.setType("text/plain");
                 startActivity(sendIntent);
@@ -181,10 +182,10 @@ public class SummaryActivity extends Activity {
        // String sharing = getString(R.string.shared_content, subjectID, subjectGender, subjectDOB, categorySelected,
        //         heightFeet+"feet "+heightInch, subjectWeight,forearmLength, subjectTestDate, ""+motion_range, maxv, ""+maxr, bi_status, tri_status, extraInfo);
 
-        String sharing = "Patient ID: "+subjectID+" \n Gender: "+ subjectGender+" \n, Date of Birth: "+subjectDOB+" \n, Category: "
-                + categorySelected + " Height: " + heightFeet +"feet " + heightInch +" inch, \n Weight: " + subjectWeight+", Forearm Length: "
-        +forearmLength +", Tested Date: "+subjectTestDate +", Motion Range: %9$d\n, Max Velocity: %10$d\n, Max Resistance: " + maxr+"\n, Biceps Status: "
-                + bi_status +", Triceps Status: " + tri_status+"\n Extra Information: " + extraInfo;
+        String sharing = "Patient ID: "+subjectID+" ,\n Gender: "+ subjectGender+" ,\n Date of Birth: "+subjectDOB+" ,\n Category: "
+                + categorySelected + " ,\n Height: " + heightFeet + heightInch +" inch, \n, Weight: " + subjectWeight+", \n Forearm Length: "
+        +forearmLength +", \nTested Date: "+subjectTestDate +",\n Motion Range:  "+ motion_range + ",\n Max Velocity:" + maxv +", \n Max Resistance: " + maxr+",\nBiceps Status: "
+                + bi_status +", \nTriceps Status: " + tri_status+",\n Extra Information: " + extraInfo;
         return sharing;
     }
 }

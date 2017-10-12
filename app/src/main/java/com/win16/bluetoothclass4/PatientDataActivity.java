@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.NumberPicker;
@@ -80,6 +81,7 @@ public class PatientDataActivity extends AppCompatActivity {
                 R.array.patient_category, android.R.layout.simple_spinner_item);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         category_Spinner.setAdapter(spinnerAdapter);
+        spinnerAdapter.notifyDataSetChanged();
 
         subject_gender_Spinner = (Spinner) findViewById(R.id.patient_gender_spinner);
         subject_gender_Spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -97,6 +99,7 @@ public class PatientDataActivity extends AppCompatActivity {
                 R.array.patient_gender, android.R.layout.simple_spinner_item);
         genderSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         subject_gender_Spinner.setAdapter(genderSpinnerAdapter);
+        genderSpinnerAdapter.notifyDataSetChanged();
 
         subjectHeightFeet_Spinner = (NumberPicker)findViewById(R.id.patientHeightPicker_ft);
         subjectHeightFeet_Spinner.setMinValue(0);

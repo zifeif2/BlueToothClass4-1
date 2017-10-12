@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
     int bi_sample_counter = 0;
     int tri_sample_counter = 0;
     private static final float THRESHOLD = 1.0f;
-    boolean start_btn_pressed = false;
+    //boolean start_btn_pressed = false;
     //J
 //    BluetoothConnection mBluetoothConnection;
 //    BluetoothAdapter mBluetoothAdapter;
@@ -234,9 +234,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 say("q");
-                start_btn_pressed = true;
+              //  start_btn_pressed = true;
                 start_btn.setClickable(false);
                 pause_btn.setClickable(true);
+
             }
         });
 
@@ -244,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 say("s");
-                start_btn_pressed = false;
+                //start_btn_pressed = false;
                 start_btn.setClickable(true);
                 pause_btn.setClickable(false);
             }
@@ -254,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 say("s");
-                start_btn_pressed = false;
+                //start_btn_pressed = false;
                 start_btn.setClickable(true);
                 pause_btn.setClickable(false);
                 Intent intent = new Intent(MainActivity.this, SummaryActivity.class);
@@ -285,6 +286,7 @@ public class MainActivity extends AppCompatActivity {
             mConnectThread.cancel();
             mConnectThread = null;
         }
+        //start_btn_pressed = false;
         unregisterReceiver(mReceiver);
     }
 
@@ -396,10 +398,10 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private void initActionBar() {
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
+        supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         getSupportActionBar().setDisplayUseLogoEnabled(false);
-       // setProgressBarIndeterminate(true);
+        setProgressBarIndeterminate(true);
         try {
             ViewConfiguration config = ViewConfiguration.get(this);
             Field menuKeyField = ViewConfiguration.class
@@ -425,10 +427,10 @@ public class MainActivity extends AppCompatActivity {
                     setProgressBarIndeterminateVisibility(false);
                     break;
                 case Constant.MSG_GOT_DATA:
-                    if(start_btn_pressed) {
+
                         String str = String.valueOf(msg.obj);
                         updateData(str);
-                    }
+
                     //Log.e("MainActivity Gotdata", String.valueOf(msg.obj));
                     break;
                 case Constant.MSG_ERROR:
@@ -454,18 +456,25 @@ public class MainActivity extends AppCompatActivity {
         }
         else{
             String[] value = str.split(",");
-            float tmpposition = Float.parseFloat(value[1]);
+            if(value.length < 5 ||str.contains("q")) {
+                Log.e("Main Activity", "omit data "+value.length);
+
+                return;
+            }
+            float tmpposition = Math.abs(Float.parseFloat(value[1]));
             float tmpv = Math.abs(Float.parseFloat(value[2]));
             float tmpr = Math.abs(Float.parseFloat(value[0]));
             float bi_tmp = Math.abs(Float.parseFloat(value[3]));
+            float tri_tmp = Math.abs(Float.parseFloat(value[4]));
             position_tv.setText(value[1]);
             velocity_tv.setText(value[2]);
             bimuscle_tv.setText(value[3]);
             trimuscletv.setText(value[4]);
             bi_sample_counter = bi_tmp > THRESHOLD? bi_sample_counter+1: 0;
-            tri_sample_counter = bi_tmp > THRESHOLD? tri_sample_counter+1: 0;
+            tri_sample_counter = tri_tmp > THRESHOLD? tri_sample_counter+1: 0;
             tmpr = Float.parseFloat(forearmLength)*tmpr;
-            resistance_tv.setText(""+tmpr);
+            String s = String.format("%.2f", tmpr);
+            resistance_tv.setText(s);
             maxPosition = maxPosition < tmpposition? tmpposition: maxPosition;
             maxResistant = maxResistant < tmpr? tmpr: maxResistant;
             maxVelocity = maxVelocity < tmpv? tmpv: maxVelocity;
