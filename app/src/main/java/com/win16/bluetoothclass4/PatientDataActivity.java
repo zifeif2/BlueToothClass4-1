@@ -1,0 +1,127 @@
+package com.win16.bluetoothclass4;
+
+import android.content.Intent;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.NumberPicker;
+import android.widget.Spinner;
+
+//import com.win16.bluetoothclass3.R;
+
+public class PatientDataActivity extends AppCompatActivity {
+
+    String subjectID;
+    String categorySelected;
+    String heightFeet;
+    String heightInch;
+    String forearmLength;
+    String subjectWeight;
+    String subjectDOB;
+    String subjectTestDate;
+
+    //intent extra tags
+    private static final String EXTRA_SUBJECT_ID = "com.win16.bluetoothclass4.subject_id";
+    private static final String EXTRA_CATEGORY_SELECTED = "com.win16.bluetoothclass4.category_selected";
+    private static final String EXTRA_HEIGHT_FEET = "com.win16.bluetoothclass4.height_feet";
+    private static final String EXTRA_HEIGHT_INCH = "com.win16.bluetoothclass4.height_inch";
+    private static final String EXTRA_FOREARM_LENGTH = "com.win16.bluetoothclass4.forearm_length";
+    private static final String EXTRA_SUBJECT_WEIGHT = "com.win16.bluetoothclass4.subject_weight";
+    private static final String EXTRA_SUBJECT_DOB = "com.win16.bluetoothclass4.subject_dob";
+    private static final String EXTRA_SUBJECT_TEST_DATE = "com.win16.bluetoothclass4.subject_test_date";
+
+    EditText subjectID_editText;
+    Spinner category_Spinner;
+    NumberPicker subjectHeightFeet_Spinner;
+    NumberPicker subjectHeightInch_Spinner;
+    EditText subjectForearmLength_editText;
+    EditText subjectWeight_editText;
+    EditText subjectDOB_editText;
+    EditText subjectTestDate_editText;
+    Button confirm_button;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_patient_data);
+
+        //Initialize items
+        subjectID_editText = (EditText)findViewById(R.id.patient_ID);
+
+        category_Spinner = (Spinner) findViewById(R.id.patient_category_spinner);
+        category_Spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                categorySelected = parent.getItemAtPosition(position).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // no need for implementation
+            }
+        });
+        ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,
+                R.array.patient_category, android.R.layout.simple_spinner_item);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        category_Spinner.setAdapter(spinnerAdapter);
+
+        subjectHeightFeet_Spinner = (NumberPicker)findViewById(R.id.patientHeightPicker_ft);
+        subjectHeightFeet_Spinner.setMinValue(0);
+        subjectHeightFeet_Spinner.setMaxValue(getResources().getStringArray(R.array.patient_ft).length-1);
+        subjectHeightFeet_Spinner.setDisplayedValues(getResources().getStringArray(R.array.patient_ft));
+        subjectHeightFeet_Spinner.setWrapSelectorWheel(false);
+        subjectHeightFeet_Spinner.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                heightFeet = getResources().getStringArray(R.array.patient_ft)[newVal];
+            }
+        });
+
+        subjectHeightInch_Spinner = (NumberPicker)findViewById(R.id.patientHeightPicker_in);
+        subjectHeightInch_Spinner.setMinValue(0);
+        subjectHeightInch_Spinner.setMaxValue(getResources().getStringArray(R.array.patient_in).length-1);
+        subjectHeightInch_Spinner.setDisplayedValues(getResources().getStringArray(R.array.patient_in));
+        subjectHeightInch_Spinner.setWrapSelectorWheel(false);
+        subjectHeightInch_Spinner.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                heightInch = getResources().getStringArray(R.array.patient_in)[newVal];
+            }
+        });
+
+        subjectForearmLength_editText = (EditText)findViewById(R.id.patient_forearmlength);
+        subjectWeight_editText = (EditText)findViewById(R.id.patient_weight);
+        subjectDOB_editText = (EditText)findViewById(R.id.patient_dob);
+        subjectTestDate_editText = (EditText)findViewById(R.id.test_date);
+
+        confirm_button = (Button)findViewById(R.id.confirm_button);
+        confirm_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(PatientDataActivity.this, MainActivity.class);
+                subjectID = subjectID_editText.getText().toString();
+                forearmLength = subjectForearmLength_editText.getText().toString();
+                subjectWeight = subjectWeight_editText.getText().toString();
+                subjectDOB = subjectDOB_editText.getText().toString();
+                subjectTestDate = subjectTestDate_editText.getText().toString();
+
+                intent.putExtra(EXTRA_SUBJECT_ID, subjectID);
+                intent.putExtra(EXTRA_CATEGORY_SELECTED, categorySelected);
+                intent.putExtra(EXTRA_HEIGHT_FEET, heightFeet);
+                intent.putExtra(EXTRA_HEIGHT_INCH, heightInch);
+                intent.putExtra(EXTRA_FOREARM_LENGTH, forearmLength);
+                intent.putExtra(EXTRA_SUBJECT_WEIGHT, subjectWeight);
+                intent.putExtra(EXTRA_SUBJECT_DOB, subjectDOB);
+                intent.putExtra(EXTRA_SUBJECT_TEST_DATE, subjectTestDate);
+
+                startActivity(intent);
+            }
+        });
+    }
+
+
+}
