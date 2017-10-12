@@ -7,6 +7,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import static com.win16.bluetoothclass4.MainActivity.INTENT_POSITION;
+import static com.win16.bluetoothclass4.MainActivity.INTENT_RESISTANT;
+import static com.win16.bluetoothclass4.MainActivity.INTENT_VELOCITY;
+
 /**
  * Created by zifeifeng on 10/10/17.
  */
@@ -23,13 +27,30 @@ public class SummaryActivity extends Activity {
     private Button next_btn;
     private String[] attr;
 
+    private float motion_range;
+    private float maxr;
+    private float maxv;
+    String subjectID;
+    String categorySelected;
+    String heightFeet;
+    String heightInch;
+    String forearmLength;
+    String subjectWeight;
+    String subjectDOB;
+    String subjectTestDate;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_summary);
         initUI();
-        Intent i = getIntent();
+        Intent intent = getIntent();
+        if(intent != null){
+            motion_range_tv.setText(""+intent.getFloatExtra(INTENT_POSITION, 0));
+            max_r_tv.setText(""+intent.getFloatExtra(INTENT_RESISTANT, 0));
+            max_v_tv.setText(""+intent.getFloatExtra(INTENT_VELOCITY, 0));
 
+        }
     }
 
     private void initUI(){
@@ -47,7 +68,6 @@ public class SummaryActivity extends Activity {
             public void onClick(View view) {
                 Intent sendIntent = new Intent();
                 sendIntent.setAction(Intent.ACTION_SEND);
-
                 sendIntent.putExtra(Intent.EXTRA_TEXT, getSharedString());
                 sendIntent.setType("text/plain");
                 startActivity(sendIntent);

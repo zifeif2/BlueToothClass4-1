@@ -37,6 +37,7 @@ public class ConnectedThread extends Thread {
         int begin = 0;
         int bytes = 0;
         String a ="";
+        int lastHashtag = 0;
         while (true) {
 //                try {
 //                    bytes += mmInStream.read(buffer, bytes, buffer.length - bytes);
@@ -65,19 +66,31 @@ public class ConnectedThread extends Thread {
 //                    break;
 //                }
             try {
-                bytes += mmInStream.read(buffer, bytes, buffer.length - bytes);
+                bytes += mmInStream.read(buffer, bytes, buffer.length - bytes);//bytes counts the valid elements in buffer
                 String tmp = new String(buffer);
                 for(int i = begin; i < bytes; i++) {
                     if(buffer[i] == "#".getBytes()[0]) {
-
-                        byte[] buffer1 = Arrays.copyOfRange(buffer, begin, i);
+                        lastHashtag = i;
+                        byte[] buffer1 = Arrays.copyOfRange(buffer, begin, i);//the first byte read from buffer
                         String str = new String(buffer1);
                         Log.e("Connected Thread haha", str);
                         mHandler.obtainMessage(MSG_GOT_DATA, str).sendToTarget();
-                        begin = i + 1;
-                        if(i == bytes - 1) {
+                        begin = i + 1;//update begin so that when the next hashtag is read it knows where to start
+                        if(i == bytes - 1) {//when the buffer becomes full and the last byte is #
                             bytes = 0;
                             begin = 0;
+                        }
+
+                    }
+                    else {
+                        if(i == buffer.length - 1) {//when the buffer becomes full and the last byte is a number
+                            begin = 0;
+                            int j = 0;
+                            for(; j <buffer.length-lastHashtag-1; j++){
+                                buffer[j] = buffer[lastHashtag+1+j];
+                            }
+                            bytes = j;
+                            lastHashtag = 0;
                         }
                     }
                 }

@@ -35,7 +35,7 @@
             android:layout_width="0dp"
             android:layout_weight="0.5"
             android:layout_height="wrap_content"
-            android:text="deg/s"
+            android:text="deg"
             android:textSize="18dp"/>
     </LinearLayout>
     <LinearLayout
@@ -93,7 +93,7 @@
             android:layout_width="0dp"
             android:layout_weight="0.5"
             android:layout_height="wrap_content"
-            android:text="N"
+            android:text="N/m"
             android:textSize="18dp"/>
     </LinearLayout>
     <LinearLayout

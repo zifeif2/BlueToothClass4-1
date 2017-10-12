@@ -28,8 +28,6 @@ import android.widget.Toast;
 import com.win16.bluetoothclass4.connect.ConnectThread;
 import com.win16.bluetoothclass4.connect.Constant;
 
-import org.w3c.dom.Text;
-
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -40,7 +38,17 @@ import java.util.List;
  */
 public class MainActivity extends Activity {
 
-
+    public static final String EXTRA_SUBJECT_ID = "com.win16.bluetoothclass4.subject_id";
+    public static final String EXTRA_CATEGORY_SELECTED = "com.win16.bluetoothclass4.category_selected";
+    public static final String EXTRA_HEIGHT_FEET = "com.win16.bluetoothclass4.height_feet";
+    public static final String EXTRA_HEIGHT_INCH = "com.win16.bluetoothclass4.height_inch";
+    public static final String EXTRA_FOREARM_LENGTH = "com.win16.bluetoothclass4.forearm_length";
+    public static final String EXTRA_SUBJECT_WEIGHT = "com.win16.bluetoothclass4.subject_weight";
+    public static final String EXTRA_SUBJECT_DOB = "com.win16.bluetoothclass4.subject_dob";
+    public static final String EXTRA_SUBJECT_TEST_DATE = "com.win16.bluetoothclass4.subject_test_date";
+    public static final String INTENT_POSITION = "com.win16.bluetoothclass4.position";
+    public static final String INTENT_VELOCITY = "com.win16.bluetoothclass4.velocity";
+    public static final String INTENT_RESISTANT = "com.win16.bluetoothclass4.resistant";
     public static final int REQUEST_CODE = 0;
     private List<BluetoothDevice> mDeviceList = new ArrayList<>();
     private List<BluetoothDevice> mBondedDeviceList = new ArrayList<>();
@@ -65,9 +73,7 @@ public class MainActivity extends Activity {
     private float maxPosition=0;
     private float maxVelocity = 0;
     private float maxResistant = 0;
-    public static final String intent_position = "Position";
-    public static final String intent_velocity = "Velocity";
-    public static final String intent_resistant = "Resistant";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,11 +190,20 @@ public class MainActivity extends Activity {
         stop_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(MainActivity.this, SummaryActivity.class);
-                i.putExtra(intent_position, maxPosition);
-                i.putExtra(intent_velocity, maxVelocity);
-                i.putExtra(intent_resistant, maxResistant);
-                startActivity(i);
+                Intent intent = new Intent(MainActivity.this, SummaryActivity.class);
+                intent.putExtra(INTENT_POSITION, maxPosition);
+                intent.putExtra(INTENT_VELOCITY, maxVelocity);
+                intent.putExtra(INTENT_RESISTANT, maxResistant);
+                intent.putExtra(EXTRA_SUBJECT_ID, getIntent().getStringExtra(EXTRA_SUBJECT_ID));
+                intent.putExtra(EXTRA_CATEGORY_SELECTED, getIntent().getStringExtra(EXTRA_CATEGORY_SELECTED));
+                intent.putExtra(EXTRA_HEIGHT_FEET, getIntent().getStringExtra(EXTRA_HEIGHT_FEET));
+                intent.putExtra(EXTRA_HEIGHT_INCH, getIntent().getStringExtra(EXTRA_HEIGHT_INCH));
+                intent.putExtra(EXTRA_FOREARM_LENGTH, getIntent().getStringExtra(EXTRA_FOREARM_LENGTH));
+                intent.putExtra(EXTRA_SUBJECT_WEIGHT, getIntent().getStringExtra(EXTRA_SUBJECT_WEIGHT));
+                intent.putExtra(EXTRA_SUBJECT_DOB, getIntent().getStringExtra(EXTRA_SUBJECT_DOB));
+                intent.putExtra(EXTRA_SUBJECT_TEST_DATE, getIntent().getStringExtra(EXTRA_SUBJECT_TEST_DATE));
+
+                startActivity(intent);
             }
         });
 
@@ -197,7 +212,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-
+        super.onDestroy();
         if( mConnectThread != null) {
             mConnectThread.cancel();
         }
@@ -359,14 +374,14 @@ public class MainActivity extends Activity {
         }
         else{
             String[] value = str.split(",");
-            position_tv.setText(value[0]);
-            velocity_tv.setText(value[0]);
-            bimuscle_tv.setText(value[0]);
-            trimuscletv.setText(value[0]);
+            float tmpposition = Float.parseFloat(value[1]);
+            float tmpv = Math.abs(Float.parseFloat(value[2]));
+            float tmpr = Math.abs(Float.parseFloat(value[0]));
+            position_tv.setText(value[1]);
+            velocity_tv.setText(value[2]);
+            bimuscle_tv.setText(value[3]);
+            trimuscletv.setText(value[4]);
             resistance_tv.setText(value[0]);
-            int tmpposition = Integer.parseInt(value[1]);
-            int tmpv = Integer.parseInt(value[2]);
-            int tmpr = Integer.parseInt(value[3]);
             maxPosition = maxPosition < tmpposition? tmpposition: maxPosition;
             maxResistant = maxResistant < tmpr? tmpr: maxResistant;
             maxVelocity = maxVelocity < tmpv? tmpv: maxVelocity;
