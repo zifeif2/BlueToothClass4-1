@@ -1,8 +1,10 @@
 package com.win16.bluetoothclass4;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -11,7 +13,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
+import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
+
+import static com.win16.bluetoothclass4.MainActivity.EXTRA_CALLER;
 import static com.win16.bluetoothclass4.MainActivity.EXTRA_CATEGORY_SELECTED;
 import static com.win16.bluetoothclass4.MainActivity.EXTRA_FOREARM_LENGTH;
 import static com.win16.bluetoothclass4.MainActivity.EXTRA_HEIGHT_FEET;
@@ -36,15 +43,6 @@ public class PatientDataActivity extends AppCompatActivity {
     String subjectTestDate;
     String subjectGender;
 
-//    //intent extra tags
-//    private static final String EXTRA_SUBJECT_ID = "com.win16.bluetoothclass4.subject_id";
-//    private static final String EXTRA_CATEGORY_SELECTED = "com.win16.bluetoothclass4.category_selected";
-//    private static final String EXTRA_HEIGHT_FEET = "com.win16.bluetoothclass4.height_feet";
-//    private static final String EXTRA_HEIGHT_INCH = "com.win16.bluetoothclass4.height_inch";
-//    private static final String EXTRA_FOREARM_LENGTH = "com.win16.bluetoothclass4.forearm_length";
-//    private static final String EXTRA_SUBJECT_WEIGHT = "com.win16.bluetoothclass4.subject_weight";
-//    private static final String EXTRA_SUBJECT_DOB = "com.win16.bluetoothclass4.subject_dob";
-//    private static final String EXTRA_SUBJECT_TEST_DATE = "com.win16.bluetoothclass4.subject_test_date";
 
     EditText subjectID_editText;
     Spinner category_Spinner;
@@ -120,8 +118,7 @@ public class PatientDataActivity extends AppCompatActivity {
         subjectHeightInch_Spinner.setWrapSelectorWheel(false);
         subjectHeightInch_Spinner.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
-            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                heightInch = getResources().getStringArray(R.array.patient_in)[newVal];
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {heightInch = getResources().getStringArray(R.array.patient_in)[newVal];
             }
         });
 
@@ -150,7 +147,18 @@ public class PatientDataActivity extends AppCompatActivity {
                 intent.putExtra(EXTRA_SUBJECT_WEIGHT, subjectWeight);
                 intent.putExtra(EXTRA_SUBJECT_DOB, subjectDOB);
                 intent.putExtra(EXTRA_SUBJECT_TEST_DATE, subjectTestDate);
-
+                intent.putExtra(EXTRA_CALLER, "PatientDataActivity");
+//                FileOutputStream outputStream;
+//                try {
+//                    outputStream = openFileOutput(subjectID+".txt", Context.MODE_PRIVATE);
+//                    outputStream.write("write the first time \n".getBytes());
+//                    outputStream.close();
+//                    Toast.makeText(getBaseContext(), "File created successfully!",
+//                            Toast.LENGTH_SHORT).show();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                    Log.e("Create File", e.toString());
+//                }
                 startActivity(intent);
             }
         });

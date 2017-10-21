@@ -2,10 +2,15 @@ package com.win16.bluetoothclass4;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import java.io.File;
 
 import static android.R.attr.max;
 import static android.R.attr.name;
@@ -150,11 +155,12 @@ public class SummaryActivity extends Activity {
         shared_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent sendIntent = new Intent();
-                sendIntent.setAction(Intent.ACTION_SEND);
-                sendIntent.putExtra(Intent.EXTRA_TEXT,getSharedString());
-                sendIntent.setType("text/plain");
-                startActivity(sendIntent);
+//                Intent sendIntent = new Intent();
+//                sendIntent.setAction(Intent.ACTION_SEND);
+//                sendIntent.putExtra(Intent.EXTRA_TEXT,getSharedString());
+//                sendIntent.setType("text/plain");
+//                startActivity(sendIntent);
+                shareByEmail();
             }
         });
         reset_btn.setOnClickListener(new View.OnClickListener() {
@@ -187,5 +193,15 @@ public class SummaryActivity extends Activity {
         +forearmLength +", \nTested Date: "+subjectTestDate +",\n Motion Range:  "+ motion_range + ",\n Max Velocity:" + maxv +", \n Max Resistance: " + maxr+",\nBiceps Status: "
                 + bi_status +", \nTriceps Status: " + tri_status+",\n Extra Information: " + extraInfo;
         return sharing;
+    }
+
+    private void shareByEmail(){
+        Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+        emailIntent.setType("message/rfc822").putExtra(Intent.EXTRA_EMAIL, new String[]{"zifeif2@illinois.edu"}).putExtra(android.content.Intent.EXTRA_SUBJECT, "Patient Data");
+        String targetFilePath = Environment.getExternalStorageDirectory().getPath() + File.separator + "Android/data/com.win16.bluetoothclass3/files/bluetoothclass4" + File.separator + subjectID+".txt";
+        Log.e("share File", targetFilePath);
+        Uri attachmentUri = Uri.parse(targetFilePath);
+        emailIntent.putExtra(android.content.Intent.EXTRA_STREAM, Uri.parse("file://" + attachmentUri));
+        startActivity(emailIntent);
     }
 }

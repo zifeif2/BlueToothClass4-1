@@ -28,9 +28,13 @@ import android.widget.Toast;
 import com.win16.bluetoothclass4.connect.ConnectThread;
 import com.win16.bluetoothclass4.connect.Constant;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -52,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_RESISTANT = "com.win16.bluetoothclass4.resistant";
     public static final String EXTRA_BICOUNT = "com.win16.bluetoothclass4.bicount";
     public static final String EXTRA_TRICOUNT = "com.win16.bluetoothclass4.tricount";
+    public static final String EXTRA_CALLER = "com.win16.bluetoothclass4.caller";
     public static final int REQUEST_CODE = 0;
     private List<BluetoothDevice> mDeviceList = new ArrayList<>();
     private List<BluetoothDevice> mBondedDeviceList = new ArrayList<>();
@@ -63,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
    // private AcceptThread mAcceptThread;
     private ConnectThread mConnectThread;
 
-    String subjectID;
+    String subjectID = null;
     String categorySelected;
     String heightFeet;
     String heightInch;
@@ -71,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
     String subjectWeight;
     String subjectDOB;
     String subjectTestDate;
+    String subjectGender;
+
 
     private TextView position_tv;
     private TextView velocity_tv;
@@ -85,10 +92,13 @@ public class MainActivity extends AppCompatActivity {
     private float maxVelocity = 0;
     private float maxResistant = 0;
     BluetoothDevice device;
-
+    FileWriter mFileWriter;
     int bi_sample_counter = 0;
     int tri_sample_counter = 0;
     private static final float THRESHOLD = 1.0f;
+    File report_file;
+    FileOutputStream outputStream;
+
     //boolean start_btn_pressed = false;
     //J
 //    BluetoothConnection mBluetoothConnection;
@@ -104,7 +114,9 @@ public class MainActivity extends AppCompatActivity {
         mController.turnOnBlueTooth(this, REQUEST_CODE);
         Intent i = getIntent();
         forearmLength = i.getStringExtra(EXTRA_FOREARM_LENGTH);
-
+        subjectID = i.getStringExtra(EXTRA_SUBJECT_ID);
+        mFileWriter = new FileWriter(subjectID, this, composeInitialContent());
+        //outputStream = openFileOutput()
 ////J
 //        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter("sentArduinoData"));
 //        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -118,15 +130,6 @@ public class MainActivity extends AppCompatActivity {
             updateData(text);
         }
     };
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-//        if(device!=null) {
-//            mConnectThread = new ConnectThread(device, mController.getAdapter(), mUIHandler);
-//            mConnectThread.start();
-//        }
-    }
 
     @Override
     protected void onStop() {
@@ -233,8 +236,12 @@ public class MainActivity extends AppCompatActivity {
         start_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                say("q");
               //  start_btn_pressed = true;
+                if(!mFileWriter.isExternalStorageWritable()){
+                    Toast.makeText(MainActivity.this, "Do not have storage to write data", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                say("q");//if there is not enough storage space, can't send data
                 start_btn.setClickable(false);
                 pause_btn.setClickable(true);
 
@@ -258,6 +265,7 @@ public class MainActivity extends AppCompatActivity {
                 //start_btn_pressed = false;
                 start_btn.setClickable(true);
                 pause_btn.setClickable(false);
+                mFileWriter.closeOutputStream();
                 Intent intent = new Intent(MainActivity.this, SummaryActivity.class);
                 intent.putExtra(EXTRA_POSITION, maxPosition);
                 intent.putExtra(EXTRA_VELOCITY, maxVelocity);
@@ -317,7 +325,8 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.enable_visiblity) {
-            mController.enableVisibly(this);
+            //mController.enableVisibly(this);
+            mFileWriter.writeData("hello\n");
         }
         if( id == R.id.find_device) {
             //look for device
@@ -397,6 +406,21 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        String id = intent.getStringExtra(EXTRA_SUBJECT_ID);
+
+        if(id !=null) { // come from userdatapage
+            subjectID = id;
+            setIntent(intent);
+        }
+        if(mFileWriter!=null){
+            mFileWriter.updateId(subjectID, composeInitialContent());
+        }
+
+    }
+
     private void initActionBar() {
 
         supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -415,6 +439,27 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void writeData(String str){
+        if(outputStream == null) {
+            try {
+                outputStream = openFileOutput(subjectID + ".txt", Context.MODE_PRIVATE);
+                outputStream.write("get to main activity".getBytes());
+                outputStream.write("write the second time".getBytes());
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e("Write File", e.toString());
+            }
+        }
+        else{
+            try {
+                outputStream.write("write for the third time".getBytes());
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e("Write File", e.toString());
+            }
+        }
+    }
+
     private class MyHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
@@ -427,11 +472,9 @@ public class MainActivity extends AppCompatActivity {
                     setProgressBarIndeterminateVisibility(false);
                     break;
                 case Constant.MSG_GOT_DATA:
-
                         String str = String.valueOf(msg.obj);
                         updateData(str);
-
-                    //Log.e("MainActivity Gotdata", String.valueOf(msg.obj));
+                        mFileWriter.writeData(str);
                     break;
                 case Constant.MSG_ERROR:
                     showToast("error: "+String.valueOf(msg.obj));
@@ -480,5 +523,22 @@ public class MainActivity extends AppCompatActivity {
             maxVelocity = maxVelocity < tmpv? tmpv: maxVelocity;
         }
 
+    }
+
+    private String composeInitialContent(){
+        Intent i = getIntent();
+        subjectID = i.getStringExtra(EXTRA_SUBJECT_ID);
+        categorySelected = i.getStringExtra(EXTRA_CATEGORY_SELECTED);
+        heightFeet = i.getStringExtra(EXTRA_HEIGHT_FEET);
+        heightInch = i.getStringExtra(EXTRA_HEIGHT_INCH);
+        forearmLength = i.getStringExtra(EXTRA_FOREARM_LENGTH);
+        subjectWeight = i.getStringExtra(EXTRA_SUBJECT_WEIGHT);
+        subjectDOB =  i.getStringExtra(EXTRA_SUBJECT_DOB);
+        subjectTestDate =  i.getStringExtra(EXTRA_SUBJECT_TEST_DATE);
+        subjectGender = i.getStringExtra(EXTRA_SUBJECT_GENDER);
+        String sharing = "Patient ID: "+subjectID+" ,\n Gender: "+ subjectGender+" ,\n Date of Birth: "+subjectDOB+" ,\n Category: "
+                + categorySelected + " ,\n Height: " + heightFeet + heightInch +" inch, \n, Weight: " + subjectWeight+", \n Forearm Length: "
+                +forearmLength +", \nTested Date: "+subjectTestDate +".\n";
+        return sharing;
     }
 }
