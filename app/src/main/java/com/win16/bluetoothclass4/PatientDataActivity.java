@@ -59,17 +59,18 @@ public class PatientDataActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_patient_data);
-
+        if(!Shared.getBoolean(this, Shared.HAS_BEEN_SAHRED)){
+            ShareLastFileFragment dialog = new ShareLastFileFragment();
+            dialog.show(getSupportFragmentManager(), "share_last_file");
+        }
         //Initialize items
         subjectID_editText = (EditText)findViewById(R.id.patient_ID);
-
         category_Spinner = (Spinner) findViewById(R.id.patient_category_spinner);
         category_Spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 categorySelected = parent.getItemAtPosition(position).toString();
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 // no need for implementation

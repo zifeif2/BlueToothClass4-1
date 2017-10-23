@@ -20,6 +20,8 @@
     <string name="datarecord_stop">Stop</string>
     <string name="datarecord_pause">Pause</string>
     <string name="no_connection">No Connection</string>
+    <string name="shared_last_file">Share</string>
+    <string name="discard_last_file">Discard</string>
     <!-- Patient Info Category Spinner -->
     <string-array name="patient_category">
         <item>Healthy</item>

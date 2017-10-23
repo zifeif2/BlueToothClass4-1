@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -96,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
     int bi_sample_counter = 0;
     int tri_sample_counter = 0;
     private static final float THRESHOLD = 1.0f;
+    private CountDownTimer mCountDownTimer;
     File report_file;
     FileOutputStream outputStream;
 
@@ -116,6 +118,20 @@ public class MainActivity extends AppCompatActivity {
         forearmLength = i.getStringExtra(EXTRA_FOREARM_LENGTH);
         subjectID = i.getStringExtra(EXTRA_SUBJECT_ID);
         mFileWriter = new FileWriter(subjectID, this, composeInitialContent());
+        mCountDownTimer = new CountDownTimer(3*1000, 1000) {
+            @Override
+            public void onTick(long l) {
+                Toast.makeText(getApplicationContext(), "Ready in "+l/1000+" seconds", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFinish() {
+//                startService(stopRingtoneIntent);
+                say("q");//if there is not enough storage space, can't send data
+                Log.e("finish timer", "finish saying q");
+            }
+        };
+
         //outputStream = openFileOutput()
 ////J
 //        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter("sentArduinoData"));
@@ -236,12 +252,11 @@ public class MainActivity extends AppCompatActivity {
         start_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-              //  start_btn_pressed = true;
                 if(!mFileWriter.isExternalStorageWritable()){
                     Toast.makeText(MainActivity.this, "Do not have storage to write data", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                say("q");//if there is not enough storage space, can't send data
+                mCountDownTimer.start();
                 start_btn.setClickable(false);
                 pause_btn.setClickable(true);
 
@@ -252,6 +267,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 say("s");
+                mCountDownTimer.cancel();
                 //start_btn_pressed = false;
                 start_btn.setClickable(true);
                 pause_btn.setClickable(false);
@@ -262,6 +278,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 say("s");
+                mCountDownTimer.cancel();
                 //start_btn_pressed = false;
                 start_btn.setClickable(true);
                 pause_btn.setClickable(false);
@@ -504,11 +521,23 @@ public class MainActivity extends AppCompatActivity {
 
                 return;
             }
-            float tmpposition = Math.abs(Float.parseFloat(value[1]));
-            float tmpv = Math.abs(Float.parseFloat(value[2]));
-            float tmpr = Math.abs(Float.parseFloat(value[0]));
-            float bi_tmp = Math.abs(Float.parseFloat(value[3]));
-            float tri_tmp = Math.abs(Float.parseFloat(value[4]));
+            float tmpposition=0;
+            float tmpv=0;
+            float tmpr =0;
+            float bi_tmp=0;
+            float tri_tmp=0;
+            try {
+                 tmpposition = Math.abs(Float.parseFloat(value[1]));
+                 tmpv = Math.abs(Float.parseFloat(value[2]));
+                 tmpr = Math.abs(Float.parseFloat(value[0]));
+                 bi_tmp = Math.abs(Float.parseFloat(value[3]));
+                 tri_tmp = Math.abs(Float.parseFloat(value[4]));
+            }
+            catch (Exception e){
+                for(String i: value)
+                    Log.e("invalid_Data", i);
+
+            }
             position_tv.setText(value[1]);
             velocity_tv.setText(value[2]);
             bimuscle_tv.setText(value[3]);
@@ -536,9 +565,9 @@ public class MainActivity extends AppCompatActivity {
         subjectDOB =  i.getStringExtra(EXTRA_SUBJECT_DOB);
         subjectTestDate =  i.getStringExtra(EXTRA_SUBJECT_TEST_DATE);
         subjectGender = i.getStringExtra(EXTRA_SUBJECT_GENDER);
-        String sharing = "Patient ID: "+subjectID+" ,\n Gender: "+ subjectGender+" ,\n Date of Birth: "+subjectDOB+" ,\n Category: "
-                + categorySelected + " ,\n Height: " + heightFeet + heightInch +" inch, \n, Weight: " + subjectWeight+", \n Forearm Length: "
-                +forearmLength +", \nTested Date: "+subjectTestDate +".\n";
+        String sharing = "Patient ID: "+subjectID+"\n Gender: "+ subjectGender+"\n Date of Birth: "+subjectDOB+"\n Category: "
+                + categorySelected + "\n Height: " + heightFeet + heightInch +" inch\nWeight: " + subjectWeight+"\n Forearm Length: "
+                +forearmLength +"\nTested Date: "+subjectTestDate +"\n";
         return sharing;
     }
 }

@@ -155,12 +155,8 @@ public class SummaryActivity extends Activity {
         shared_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Intent sendIntent = new Intent();
-//                sendIntent.setAction(Intent.ACTION_SEND);
-//                sendIntent.putExtra(Intent.EXTRA_TEXT,getSharedString());
-//                sendIntent.setType("text/plain");
-//                startActivity(sendIntent);
                 shareByEmail();
+                Shared.putBoolean(getApplication(), Shared.HAS_BEEN_SAHRED, true);
             }
         });
         reset_btn.setOnClickListener(new View.OnClickListener() {
@@ -188,16 +184,16 @@ public class SummaryActivity extends Activity {
        // String sharing = getString(R.string.shared_content, subjectID, subjectGender, subjectDOB, categorySelected,
        //         heightFeet+"feet "+heightInch, subjectWeight,forearmLength, subjectTestDate, ""+motion_range, maxv, ""+maxr, bi_status, tri_status, extraInfo);
 
-        String sharing = "Patient ID: "+subjectID+" ,\n Gender: "+ subjectGender+" ,\n Date of Birth: "+subjectDOB+" ,\n Category: "
-                + categorySelected + " ,\n Height: " + heightFeet + heightInch +" inch, \n, Weight: " + subjectWeight+", \n Forearm Length: "
-        +forearmLength +", \nTested Date: "+subjectTestDate +",\n Motion Range:  "+ motion_range + ",\n Max Velocity:" + maxv +", \n Max Resistance: " + maxr+",\nBiceps Status: "
-                + bi_status +", \nTriceps Status: " + tri_status+",\n Extra Information: " + extraInfo;
+        String sharing = "Patient ID: "+subjectID+"\nGender: "+ subjectGender+"\nDate of Birth: "+subjectDOB+"\nCategory: "
+                + categorySelected + "\n Height: " + heightFeet + heightInch +" inch\nWeight: " + subjectWeight+", \nForearm Length: "
+        +forearmLength +"\nTested Date: "+subjectTestDate +"\nMotion Range:  "+ motion_range + "\nMax Velocity:" + maxv +"\nMax Resistance: " + maxr+"\nBiceps Status: "
+                + bi_status +"\nTriceps Status: " + tri_status+"\nExtra Information: " + extraInfo;
         return sharing;
     }
 
     private void shareByEmail(){
         Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-        emailIntent.setType("message/rfc822").putExtra(Intent.EXTRA_EMAIL, new String[]{"zifeif2@illinois.edu"}).putExtra(android.content.Intent.EXTRA_SUBJECT, "Patient Data");
+        emailIntent.setType("message/rfc822").putExtra(Intent.EXTRA_EMAIL, new String[]{"77bisko@gmail.com"}).putExtra(android.content.Intent.EXTRA_SUBJECT, "Patient Data");
         String targetFilePath = Environment.getExternalStorageDirectory().getPath() + File.separator + "Android/data/com.win16.bluetoothclass3/files/bluetoothclass4" + File.separator + subjectID+".txt";
         Log.e("share File", targetFilePath);
         Uri attachmentUri = Uri.parse(targetFilePath);
