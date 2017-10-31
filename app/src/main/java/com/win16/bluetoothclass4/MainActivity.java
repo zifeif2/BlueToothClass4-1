@@ -118,17 +118,23 @@ public class MainActivity extends AppCompatActivity {
         forearmLength = i.getStringExtra(EXTRA_FOREARM_LENGTH);
         subjectID = i.getStringExtra(EXTRA_SUBJECT_ID);
         mFileWriter = new FileWriter(subjectID, this, composeInitialContent());
-        mCountDownTimer = new CountDownTimer(3*1000, 1000) {
+        mCountDownTimer = new CountDownTimer(3*1000, 250) {
+            int secondsLeft = 0;
             @Override
-            public void onTick(long l) {
-                Toast.makeText(getApplicationContext(), "Ready in "+l/1000+" seconds", Toast.LENGTH_SHORT).show();
+            public void onTick(long ms) {
+
+                if (Math.round((float)ms / 1000.0f) != secondsLeft)
+                {
+                    secondsLeft = Math.round((float)ms / 1000.0f);
+                    start_btn.setText(""+secondsLeft );
+                }
             }
 
             @Override
             public void onFinish() {
 //                startService(stopRingtoneIntent);
                 say("q");//if there is not enough storage space, can't send data
-                Log.e("finish timer", "finish saying q");
+                start_btn.setText("Recording");
             }
         };
 
@@ -271,6 +277,7 @@ public class MainActivity extends AppCompatActivity {
                 //start_btn_pressed = false;
                 start_btn.setClickable(true);
                 pause_btn.setClickable(false);
+                start_btn.setText("Start");
             }
         });
 
@@ -278,6 +285,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 say("s");
+                start_btn.setText("Start");
                 mCountDownTimer.cancel();
                 //start_btn_pressed = false;
                 start_btn.setClickable(true);

@@ -1,7 +1,10 @@
 package com.win16.bluetoothclass4;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +20,9 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.text.DateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 import static com.win16.bluetoothclass4.MainActivity.EXTRA_CALLER;
 import static com.win16.bluetoothclass4.MainActivity.EXTRA_CATEGORY_SELECTED;
@@ -127,7 +133,6 @@ public class PatientDataActivity extends AppCompatActivity {
         subjectWeight_editText = (EditText)findViewById(R.id.patient_weight);
         subjectDOB_editText = (EditText)findViewById(R.id.patient_dob);
         subjectTestDate_editText = (EditText)findViewById(R.id.test_date);
-
         confirm_button = (Button)findViewById(R.id.confirm_button);
         confirm_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -137,8 +142,13 @@ public class PatientDataActivity extends AppCompatActivity {
                 forearmLength = subjectForearmLength_editText.getText().toString();
                 subjectWeight = subjectWeight_editText.getText().toString();
                 subjectDOB = subjectDOB_editText.getText().toString();
-                subjectTestDate = subjectTestDate_editText.getText().toString();
+                subjectTestDate = DateFormat.getDateTimeInstance().format(new Date());
 
+                String tmp = checkEmptyEntries();
+                if(!tmp.isEmpty()){
+                    showAlert(tmp);
+                    return ;
+                }
                 intent.putExtra(EXTRA_SUBJECT_ID, subjectID);
                 intent.putExtra(EXTRA_SUBJECT_GENDER, subjectGender);
                 intent.putExtra(EXTRA_CATEGORY_SELECTED, categorySelected);
@@ -149,20 +159,41 @@ public class PatientDataActivity extends AppCompatActivity {
                 intent.putExtra(EXTRA_SUBJECT_DOB, subjectDOB);
                 intent.putExtra(EXTRA_SUBJECT_TEST_DATE, subjectTestDate);
                 intent.putExtra(EXTRA_CALLER, "PatientDataActivity");
-//                FileOutputStream outputStream;
-//                try {
-//                    outputStream = openFileOutput(subjectID+".txt", Context.MODE_PRIVATE);
-//                    outputStream.write("write the first time \n".getBytes());
-//                    outputStream.close();
-//                    Toast.makeText(getBaseContext(), "File created successfully!",
-//                            Toast.LENGTH_SHORT).show();
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                    Log.e("Create File", e.toString());
-//                }
                 startActivity(intent);
             }
         });
+    }
+    private String checkEmptyEntries(){
+
+        String prefix = "Please enter ";
+        if(subjectID.length()==0){
+            return prefix+"subject ID";
+        }
+        else if(forearmLength.length() ==0){
+            return prefix+"forearm length";
+        }
+        else if(subjectWeight.isEmpty()){
+            return prefix + "subject weight";
+        }
+        else if(subjectDOB.isEmpty()){
+            return prefix +" subject date of birth";
+        }
+
+        else
+            return "";
+    }
+
+    private void showAlert(String emptyField){
+        AlertDialog.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
+        } else {
+            builder = new AlertDialog.Builder(this);
+        }
+        builder.setTitle("Alert")
+                .setMessage(emptyField)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
 
