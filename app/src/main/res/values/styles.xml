@@ -1,9 +1,11 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="ThemeOverlay.AppCompat.ActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
     </style>
 
-
+    <color name="primary_color">#71CAA2</color>
+    <color name="inactive_color">#9E9E9E</color>
+    <color name="button_color">#ffffff</color>
 </resources>

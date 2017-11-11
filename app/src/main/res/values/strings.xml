@@ -16,6 +16,13 @@
         Motion Range: %9$s\n, Max Velocity: %10$d\n, Max Resistance: %11$s \n, Biceps Status: %12$s,
         Triceps Status: %13$s\n, Extra Information: %14$s</string>
     <string name="data_recording">Recording Data</string>
+    <string name="bluetooth_connection_instruction">Here are the instruction </string>
+    <string name="calibration_inst1">Instruct the subject to rest the arm
+Press the button below to determine biceps EMG sensor gain</string>
+    <string name="calibration_inst2">Instruct the subject to flex the biceps
+Press the button below to determine biceps EMG sensor gain</string>
+    <string name="calibration_inst3">Instruct the subject to flex the triceps
+Press the button below to determine triceps EMG sensor gain</string>
     <string name="datarecord_start">Start</string>
     <string name="datarecord_stop">Stop</string>
     <string name="datarecord_pause">Pause</string>

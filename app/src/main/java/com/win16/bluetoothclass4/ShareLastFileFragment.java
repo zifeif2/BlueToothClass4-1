@@ -30,8 +30,6 @@ import static com.win16.bluetoothclass4.FileWriter.filepath;
 public class ShareLastFileFragment extends DialogFragment {
     private String subjectID;
 
-
-
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {

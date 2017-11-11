@@ -13,10 +13,15 @@ import java.util.List;
  * Created by Rex on 2015/5/27.
  */
 public class BlueToothController {
-
+    private static BlueToothController mController;
     private BluetoothAdapter mAapter;
-
-    public BlueToothController() {
+    public static BlueToothController get(Context context){
+        if(mController == null){
+            mController = new BlueToothController();
+        }
+        return mController;
+    }
+    private BlueToothController() {
         mAapter = BluetoothAdapter.getDefaultAdapter();
     }
 

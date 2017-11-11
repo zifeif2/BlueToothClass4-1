@@ -1,22 +1,30 @@
 package com.win16.bluetoothclass4.connect;
 
+import android.app.Service;
 import android.bluetooth.BluetoothSocket;
+import android.content.Intent;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import android.util.Log;
+
+import com.win16.bluetoothclass4.FileWriter;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.Socket;
 import java.util.Arrays;
 
 import static com.win16.bluetoothclass4.connect.Constant.MSG_GOT_DATA;
 
-public class ConnectedThread extends Thread {
+public class ConnectedThread extends Thread{
     private final BluetoothSocket mmSocket;
     private final InputStream mmInStream;
     private final OutputStream mmOutStream;
     private final Handler mHandler;
+
     public ConnectedThread(BluetoothSocket socket, Handler handler) {
         mHandler = handler;
         mmSocket = socket;
@@ -30,8 +38,12 @@ public class ConnectedThread extends Thread {
         }
         mmInStream = tmpIn;
         mmOutStream = tmpOut;
-
     }
+
+
+//    public void updateHandler(Handler handler){
+//        this.mHandler = handler;
+//    }
     public void run() {
         byte[] buffer = new byte[1024];
         int begin = 0;
@@ -40,14 +52,20 @@ public class ConnectedThread extends Thread {
         int lastHashtag = 0;
         while (true) {
             try {
-                bytes += mmInStream.read(buffer, bytes, buffer.length - bytes);//bytes counts the valid elements in buffer
+                bytes += mmInStream.read(buffer, bytes, buffer.length - bytes);//bytes counts the valid elements in buffe// r
+            } catch (IOException e) {
+                Log.e("blahcblahc", e.toString());
+                break;
+            }
                 String tmp = new String(buffer);
+
                 for(int i = begin; i < bytes; i++) {
+
                     if(buffer[i] == "#".getBytes()[0]) {
                         lastHashtag = i;
                         byte[] buffer1 = Arrays.copyOfRange(buffer, begin, i);//the first byte read from buffer
                         String str = new String(buffer1);
-                        Log.e("Connected Thread haha", str);
+                        Log.e("mHanlder in Connected", str);
                         mHandler.obtainMessage(MSG_GOT_DATA, str).sendToTarget();
                         begin = i + 1;//update begin so that when the next hashtag is read it knows where to start
                         if(i == bytes - 1) {//when the buffer becomes full and the last byte is #
@@ -67,9 +85,7 @@ public class ConnectedThread extends Thread {
                         }
                     }
                 }
-            } catch (IOException e) {
-                break;
-            }
+
 
         }
     }
@@ -78,6 +94,7 @@ public class ConnectedThread extends Thread {
             mmOutStream.write(bytes);
         } catch (IOException e) {
             Log.e("ConnectedThread write", "output Stream can't write data");
+            Log.e("CONNECTEDTHREAD", e.toString());
         }
     }
     public void cancel() {
@@ -85,4 +102,5 @@ public class ConnectedThread extends Thread {
             mmSocket.close();
         } catch (IOException e) { }
     }
+
 }

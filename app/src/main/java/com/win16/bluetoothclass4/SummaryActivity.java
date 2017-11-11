@@ -78,14 +78,14 @@ public class SummaryActivity extends Activity {
         motion_range = intent.getFloatExtra(EXTRA_POSITION, 0);
         maxr = intent.getFloatExtra(EXTRA_RESISTANT, 0);
         maxv = intent.getFloatExtra(EXTRA_VELOCITY, 0);
-        subjectID = intent.getStringExtra(EXTRA_SUBJECT_ID);
+//        subjectID = intent.getStringExtra(EXTRA_SUBJECT_ID);
         categorySelected = intent.getStringExtra(EXTRA_CATEGORY_SELECTED);
-        heightFeet  = intent.getStringExtra(EXTRA_HEIGHT_FEET);
-        heightInch = intent.getStringExtra(EXTRA_HEIGHT_INCH);
-        forearmLength = intent.getStringExtra(EXTRA_FOREARM_LENGTH);
-        subjectWeight = intent.getStringExtra(EXTRA_SUBJECT_WEIGHT);
-        subjectDOB =  intent.getStringExtra(EXTRA_SUBJECT_DOB);
-        subjectTestDate=intent.getStringExtra(EXTRA_SUBJECT_TEST_DATE);
+//        heightFeet  = intent.getStringExtra(EXTRA_HEIGHT_FEET);
+//        heightInch = intent.getStringExtra(EXTRA_HEIGHT_INCH);
+//        forearmLength = intent.getStringExtra(EXTRA_FOREARM_LENGTH);
+//        subjectWeight = intent.getStringExtra(EXTRA_SUBJECT_WEIGHT);
+//        subjectDOB =  intent.getStringExtra(EXTRA_SUBJECT_DOB);
+//        subjectTestDate=intent.getStringExtra(EXTRA_SUBJECT_TEST_DATE);
         bi_count = intent.getIntExtra(EXTRA_BICOUNT, 0);
         tri_count = intent.getIntExtra(EXTRA_TRICOUNT, 0);
     }
@@ -155,6 +155,7 @@ public class SummaryActivity extends Activity {
         shared_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                FileWriter.get(null,null,null).closeOutputStream();
                 shareByEmail();
                 Shared.putBoolean(getApplication(), Shared.HAS_BEEN_SAHRED, true);
             }
@@ -194,7 +195,7 @@ public class SummaryActivity extends Activity {
     private void shareByEmail(){
         Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
         emailIntent.setType("message/rfc822").putExtra(Intent.EXTRA_EMAIL, new String[]{"77bisko@gmail.com"}).putExtra(android.content.Intent.EXTRA_SUBJECT, "Patient Data");
-        String targetFilePath = Environment.getExternalStorageDirectory().getPath() + File.separator + "Android/data/com.win16.bluetoothclass3/files/bluetoothclass4" + File.separator + subjectID+".txt";
+        String targetFilePath = FileWriter.getFilepath();
         Log.e("share File", targetFilePath);
         Uri attachmentUri = Uri.parse(targetFilePath);
         emailIntent.putExtra(android.content.Intent.EXTRA_STREAM, Uri.parse("file://" + attachmentUri));

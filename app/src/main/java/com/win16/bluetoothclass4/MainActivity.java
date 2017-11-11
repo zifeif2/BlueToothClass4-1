@@ -13,6 +13,7 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -62,13 +63,13 @@ public class MainActivity extends AppCompatActivity {
     private List<BluetoothDevice> mDeviceList = new ArrayList<>();
     private List<BluetoothDevice> mBondedDeviceList = new ArrayList<>();
 
-    private BlueToothController mController = new BlueToothController();
+    private BlueToothController mController = BlueToothController.get(this);
     private ListView mListView;
     private DeviceAdapter mAdapter;
     private Toast mToast;
    // private AcceptThread mAcceptThread;
     private ConnectThread mConnectThread;
-
+    private Handler mUIHandler = new MyHandler();
     String subjectID = null;
     String categorySelected;
     String heightFeet;
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     String subjectTestDate;
     String subjectGender;
 
-
+    private Toolbar myToolbar;
     private TextView position_tv;
     private TextView velocity_tv;
     private TextView resistance_tv;
@@ -89,6 +90,10 @@ public class MainActivity extends AppCompatActivity {
     private Button start_btn;
     private Button pause_btn;
     private Button stop_btn;
+    private Button find_device_btn;
+    private Button goback_btn;
+    private Button next_btn;
+
     private float maxPosition=0;
     private float maxVelocity = 0;
     private float maxResistant = 0;
@@ -101,10 +106,6 @@ public class MainActivity extends AppCompatActivity {
     File report_file;
     FileOutputStream outputStream;
 
-    //boolean start_btn_pressed = false;
-    //J
-//    BluetoothConnection mBluetoothConnection;
-//    BluetoothAdapter mBluetoothAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,12 +113,16 @@ public class MainActivity extends AppCompatActivity {
         initActionBar();
         setContentView(R.layout.activity_main);
         initUI();
+
         registerBluetoothReceiver();
         mController.turnOnBlueTooth(this, REQUEST_CODE);
         Intent i = getIntent();
         forearmLength = i.getStringExtra(EXTRA_FOREARM_LENGTH);
         subjectID = i.getStringExtra(EXTRA_SUBJECT_ID);
-        mFileWriter = new FileWriter(subjectID, this, composeInitialContent());
+        mFileWriter = FileWriter.get(subjectID,  composeInitialContent(),this);
+        mConnectThread = ConnectThread.get(device, mController.getAdapter(), mUIHandler);
+//        if(mConnectThread!=null)
+//            mConnectThread.start();
         mCountDownTimer = new CountDownTimer(3*1000, 250) {
             int secondsLeft = 0;
             @Override
@@ -134,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
             public void onFinish() {
 //                startService(stopRingtoneIntent);
                 say("q");//if there is not enough storage space, can't send data
+                mFileWriter.writeData("\n-----------------------start to write--------------------\n");
                 start_btn.setText("Recording");
             }
         };
@@ -144,34 +150,8 @@ public class MainActivity extends AppCompatActivity {
 //        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
     }
-    BroadcastReceiver mJReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String text = intent.getStringExtra("theData");
 
-            updateData(text);
-        }
-    };
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        maxPosition=0;
-         maxVelocity = 0;
-        maxResistant = 0;
-        position_tv.setText("0.0");
-        velocity_tv.setText("0.0");
-        bimuscle_tv.setText("0.0");
-        trimuscletv.setText("0.0");
-        resistance_tv.setText("0.0");
-
-    }
-
-    //    /*Helper function J */
-//    public void startBtConnection(BluetoothDevice device, UUID uuid){
-//        mBluetoothConnection = new BluetoothConnection(MainActivity.this, mBluetoothAdapter);
-//        mBluetoothConnection.startClient(device, uuid);
-//    }
 
     private void registerBluetoothReceiver() {
         IntentFilter filter = new IntentFilter();
@@ -189,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(mReceiver, filter);
     }
 
-    private Handler mUIHandler = new MyHandler();
+
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -246,68 +226,91 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = new DeviceAdapter(mDeviceList, this);
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(bindDeviceClick);
-        position_tv = (TextView) findViewById(R.id.datarecord_position);
-        resistance_tv = (TextView) findViewById(R.id.datarecord_resistance);
-        velocity_tv = (TextView) findViewById(R.id.datarecord_velocity);
-        bimuscle_tv = (TextView) findViewById(R.id.datarecord_bimuscleemg);
-        trimuscletv = (TextView) findViewById(R.id.datarecord_trisemg);
-        server_tv = (TextView) findViewById(R.id.server_tv);
-        start_btn = (Button) findViewById(R.id.datarecord_start);
-        pause_btn =(Button) findViewById(R.id.datarecord_pause);
-        stop_btn =(Button) findViewById(R.id.datarecord_stop);
-        start_btn.setOnClickListener(new View.OnClickListener() {
+        find_device_btn = (Button) findViewById(R.id.find_device);
+        myToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(myToolbar);
+        find_device_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!mFileWriter.isExternalStorageWritable()){
-                    Toast.makeText(MainActivity.this, "Do not have storage to write data", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                mCountDownTimer.start();
-                start_btn.setClickable(false);
-                pause_btn.setClickable(true);
-
+                mAdapter.refresh(mDeviceList);
+                mController.findDevice();
+                mListView.setOnItemClickListener(bindDeviceClick);
             }
         });
-
-        pause_btn.setOnClickListener(new View.OnClickListener() {
+        goback_btn = (Button) findViewById(R.id.btn_back);
+        next_btn = (Button) findViewById(R.id.btn_forward);
+        next_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                say("s");
-                mCountDownTimer.cancel();
-                //start_btn_pressed = false;
-                start_btn.setClickable(true);
-                pause_btn.setClickable(false);
-                start_btn.setText("Start");
+                Intent i = new Intent(MainActivity.this, PreRecordActivity.class);
+                i.putExtra(EXTRA_SUBJECT_ID, subjectID);
+                startActivity(i);
             }
         });
-
-        stop_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                say("s");
-                start_btn.setText("Start");
-                mCountDownTimer.cancel();
-                //start_btn_pressed = false;
-                start_btn.setClickable(true);
-                pause_btn.setClickable(false);
-                mFileWriter.closeOutputStream();
-                Intent intent = new Intent(MainActivity.this, SummaryActivity.class);
-                intent.putExtra(EXTRA_POSITION, maxPosition);
-                intent.putExtra(EXTRA_VELOCITY, maxVelocity);
-                intent.putExtra(EXTRA_RESISTANT, maxResistant);
-                intent.putExtra(EXTRA_SUBJECT_ID, getIntent().getStringExtra(EXTRA_SUBJECT_ID));
-                intent.putExtra(EXTRA_CATEGORY_SELECTED, getIntent().getStringExtra(EXTRA_CATEGORY_SELECTED));
-                intent.putExtra(EXTRA_HEIGHT_FEET, getIntent().getStringExtra(EXTRA_HEIGHT_FEET));
-                intent.putExtra(EXTRA_HEIGHT_INCH, getIntent().getStringExtra(EXTRA_HEIGHT_INCH));
-                intent.putExtra(EXTRA_FOREARM_LENGTH, getIntent().getStringExtra(EXTRA_FOREARM_LENGTH));
-                intent.putExtra(EXTRA_SUBJECT_WEIGHT, getIntent().getStringExtra(EXTRA_SUBJECT_WEIGHT));
-                intent.putExtra(EXTRA_SUBJECT_DOB, getIntent().getStringExtra(EXTRA_SUBJECT_DOB));
-                intent.putExtra(EXTRA_SUBJECT_TEST_DATE, getIntent().getStringExtra(EXTRA_SUBJECT_TEST_DATE));
-                intent.putExtra(EXTRA_BICOUNT, bi_sample_counter);
-                intent.putExtra(EXTRA_TRICOUNT, tri_sample_counter);
-                startActivity(intent);
-            }
-        });
+//        position_tv = (TextView) findViewById(R.id.datarecord_position);
+//        resistance_tv = (TextView) findViewById(R.id.datarecord_resistance);
+//        velocity_tv = (TextView) findViewById(R.id.datarecord_velocity);
+//        bimuscle_tv = (TextView) findViewById(R.id.datarecord_bimuscleemg);
+//        trimuscletv = (TextView) findViewById(R.id.datarecord_trisemg);
+//        server_tv = (TextView) findViewById(R.id.server_tv);
+//        start_btn = (Button) findViewById(R.id.datarecord_start);
+//        pause_btn =(Button) findViewById(R.id.datarecord_pause);
+//        stop_btn =(Button) findViewById(R.id.datarecord_stop);
+//        start_btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if(!mFileWriter.isExternalStorageWritable()){
+//                    Toast.makeText(MainActivity.this, "Do not have storage to write data", Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//                mCountDownTimer.start();
+//                start_btn.setClickable(false);
+//                pause_btn.setClickable(true);
+//
+//            }
+//        });
+//
+//        pause_btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                say("s");
+//                mCountDownTimer.cancel();
+//                //start_btn_pressed = false;
+//                start_btn.setClickable(true);
+//                pause_btn.setClickable(false);
+//                start_btn.setText("Start");
+//
+//            }
+//        });
+//
+//        stop_btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                say("s");
+//                start_btn.setText("Start");
+//                mFileWriter.writeData("\n-----------------------stop to write--------------------\n");
+//                mCountDownTimer.cancel();
+//                //start_btn_pressed = false;
+//                start_btn.setClickable(true);
+//                pause_btn.setClickable(false);
+//                //mFileWriter.closeOutputStream();
+//                Intent intent = new Intent(MainActivity.this, TestActivity1.class);
+//                intent.putExtra(EXTRA_POSITION, maxPosition);
+//                intent.putExtra(EXTRA_VELOCITY, maxVelocity);
+//                intent.putExtra(EXTRA_RESISTANT, maxResistant);
+////                intent.putExtra(EXTRA_SUBJECT_ID, getIntent().getStringExtra(EXTRA_SUBJECT_ID));
+//                intent.putExtra(EXTRA_CATEGORY_SELECTED, getIntent().getStringExtra(EXTRA_CATEGORY_SELECTED));
+////                intent.putExtra(EXTRA_HEIGHT_FEET, getIntent().getStringExtra(EXTRA_HEIGHT_FEET));
+////                intent.putExtra(EXTRA_HEIGHT_INCH, getIntent().getStringExtra(EXTRA_HEIGHT_INCH));
+////                intent.putExtra(EXTRA_FOREARM_LENGTH, getIntent().getStringExtra(EXTRA_FOREARM_LENGTH));
+////                intent.putExtra(EXTRA_SUBJECT_WEIGHT, getIntent().getStringExtra(EXTRA_SUBJECT_WEIGHT));
+////                intent.putExtra(EXTRA_SUBJECT_DOB, getIntent().getStringExtra(EXTRA_SUBJECT_DOB));
+////                intent.putExtra(EXTRA_SUBJECT_TEST_DATE, getIntent().getStringExtra(EXTRA_SUBJECT_TEST_DATE));
+//                intent.putExtra(EXTRA_BICOUNT, bi_sample_counter);
+//                intent.putExtra(EXTRA_TRICOUNT, tri_sample_counter);
+//                startActivity(intent);
+//            }
+//        });
 
 
     }
@@ -316,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         if( mConnectThread != null) {
-            mConnectThread.cancel();
+          //  mConnectThread.cancel();
             mConnectThread = null;
         }
         //start_btn_pressed = false;
@@ -417,34 +420,12 @@ public class MainActivity extends AppCompatActivity {
                 mConnectThread.cancel();
                 mConnectThread = null;
             }
-
             // TODO:  might have problem with connect thread
-          //J  startBtConnection(device, Constant.CONNECTTION_UUID);
-
-
-            mConnectThread = new ConnectThread(device, mController.getAdapter(), mUIHandler);
+            mConnectThread = ConnectThread.get(device, mController.getAdapter(), mUIHandler);
             mConnectThread.start();
-            if(mConnectThread == null){
-                mConnectThread = new ConnectThread(device, mController.getAdapter(), mUIHandler);
-                mConnectThread.start();
-            }
         }
     };
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        String id = intent.getStringExtra(EXTRA_SUBJECT_ID);
-
-        if(id !=null) { // come from userdatapage
-            subjectID = id;
-            setIntent(intent);
-        }
-        if(mFileWriter!=null){
-            mFileWriter.updateId(subjectID, composeInitialContent());
-        }
-
-    }
 
     private void initActionBar() {
 
@@ -498,8 +479,9 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case Constant.MSG_GOT_DATA:
                         String str = String.valueOf(msg.obj);
-                        updateData(str);
+                        //updateData(str);
                         mFileWriter.writeData(str);
+                        Log.e("receiving data", "receiving data");
                     break;
                 case Constant.MSG_ERROR:
                     showToast("error: "+String.valueOf(msg.obj));
