@@ -9,20 +9,26 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+        android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name" android:launchMode="singleInstance"></activity>
-        <activity android:name=".PatientActivity">
-
+            android:label="@string/app_name"
+            android:launchMode="singleInstance"
+            android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".PatientDataActivity">
+
+        <activity android:name=".ClinicianDataActivity">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
+        <activity android:name=".PatientQuestionnaireActivity" android:screenOrientation="portrait"></activity>
+
+        <activity android:name=".InstructionActivity"></activity>
         <activity android:name=".SummaryActivity"></activity>
     </application>
 

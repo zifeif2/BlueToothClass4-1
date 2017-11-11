@@ -3,29 +3,15 @@ package com.win16.bluetoothclass4;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.internal.widget.AdapterViewCompat;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.NumberPicker;
 import android.widget.Spinner;
 
-import static com.win16.bluetoothclass4.MainActivity.EXTRA_CATEGORY_SELECTED;
-import static com.win16.bluetoothclass4.MainActivity.EXTRA_FOREARM_LENGTH;
-import static com.win16.bluetoothclass4.MainActivity.EXTRA_HEIGHT_FEET;
-import static com.win16.bluetoothclass4.MainActivity.EXTRA_HEIGHT_INCH;
-import static com.win16.bluetoothclass4.MainActivity.EXTRA_SUBJECT_DOB;
-import static com.win16.bluetoothclass4.MainActivity.EXTRA_SUBJECT_ID;
-import static com.win16.bluetoothclass4.MainActivity.EXTRA_SUBJECT_TEST_DATE;
-import static com.win16.bluetoothclass4.MainActivity.EXTRA_SUBJECT_WEIGHT;
-import static com.win16.bluetoothclass4.MainActivity.EXTRA_SUBJECT_GENDER;
 
-
-
-public class PatientDataActivity extends AppCompatActivity {
+public class ClinicianDataActivity extends AppCompatActivity {
 
     String clinicianName;
     /*
@@ -58,8 +44,12 @@ public class PatientDataActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_patient_data);
+        setContentView(R.layout.activity_clinician_data);
 
+        initSpinners();
+    }
+
+    public void initSpinners() {
         /**Clinician Spinner**/
         spinner_clinician = (Spinner)findViewById(R.id.ID_spinner_clinician);
         spinner_clinician.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -81,7 +71,7 @@ public class PatientDataActivity extends AppCompatActivity {
         spinner_mas.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-               //TODO: update MAS counter in app, launch instructions
+                //TODO: update MAS counter in app, launch instructions
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
@@ -123,10 +113,22 @@ public class PatientDataActivity extends AppCompatActivity {
         adapter_udprs.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner_updrs.setAdapter(adapter_udprs);
         /********************/
-
-
-
     }
 
-
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_patient_activity, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.ID_menuitem_clinician_next:
+                Intent intent = new Intent(ClinicianDataActivity.this, PatientQuestionnaireActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }

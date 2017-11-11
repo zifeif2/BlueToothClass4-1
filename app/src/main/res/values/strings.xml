@@ -20,6 +20,42 @@
     <string name="datarecord_stop">Stop</string>
     <string name="datarecord_pause">Pause</string>
     <string name="no_connection">No Connection</string>
+    <!-- ClinicianDataActivity -->
+    <string-array name="STRING_ARR_clinician_names">
+        <item>Clinician Name</item>
+        <item>Shoba Raj-UnderHill</item>
+        <item>Don Lamichanne</item>
+    </string-array>
+
+    <string-array name="STRING_ARR_mts_levels">
+        <item>MTS: Level 1</item>
+        <item>MTS: Level 2</item>
+        <item>MTS: Level 3</item>
+        <item>MTS: Level 4</item>
+        <item>MTS: Level 5</item>
+    </string-array>
+
+    <string-array name="STRING_ARR_mas_levels">
+        <item>MAS: Level 1</item>
+        <item>MAS: Level 2</item>
+        <item>MAS: Level 3</item>
+        <item>MAS: Level 4</item>
+        <item>MAS: Level 5</item>
+    </string-array>
+
+    <string-array name="STRING_ARR_udprs_levels">
+        <item>UDPRS: Level 1</item>
+        <item>UDPRS: Level 2</item>
+        <item>UDPRS: Level 3</item>
+        <item>UDPRS: Level 4</item>
+        <item>UPPRS: Level 5</item>
+    </string-array>
+
+    <string-array name="STRING_ARR_gender">
+        <item>Male</item>
+        <item>Female</item>
+    </string-array>
+
     <!-- Patient Info Category Spinner -->
     <string-array name="patient_category">
         <item>Healthy</item>
@@ -56,4 +92,7 @@
         <item>10 in</item>
         <item>11 in</item>
     </string-array>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

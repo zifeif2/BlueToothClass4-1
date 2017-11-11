@@ -7,9 +7,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import static android.R.attr.max;
-import static android.R.attr.name;
-import static android.R.attr.weightSum;
 import static com.win16.bluetoothclass4.MainActivity.EXTRA_BICOUNT;
 import static com.win16.bluetoothclass4.MainActivity.EXTRA_CATEGORY_SELECTED;
 import static com.win16.bluetoothclass4.MainActivity.EXTRA_FOREARM_LENGTH;
@@ -60,7 +57,7 @@ public class SummaryActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_summary);
+        setContentView(R.layout.activity_patient_summary);
         initUI();
         Intent intent = getIntent();
         if(intent != null){
@@ -167,7 +164,7 @@ public class SummaryActivity extends Activity {
         next_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(SummaryActivity.this, PatientDataActivity.class);
+                Intent intent = new Intent(SummaryActivity.this, ClinicianDataActivity.class);
                 startActivity(intent);
             }
         });

@@ -1,53 +1,41 @@
-package com.win16.bluetoothclass4.connect;
+package com.win16.bluetoothclass4;
 
-import android.content.Context;
-import android.net.Uri;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import com.win16.bluetoothclass3.R;import com.win16.bluetoothclass4.BluetoothConnection;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link BluetoothConnection.InstructionFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link BluetoothConnection.InstructionFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class InstructionFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
+
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String ARG_PARAM1 = "whichInstruction";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    ImageView topPic;
+    ImageView botPic;
+    TextView instruction_one;
+    TextView instruction_two;
 
-    private OnFragmentInteractionListener mListener;
+    int instruction_key;
 
-    public InstructionFragment() {
-        // Required empty public constructor
-    }
+    int[] pic_resource_ids = {R.drawable.number_zero, R.drawable.number_one, R.drawable.number_two,
+                            R.drawable.number_three, R.drawable.number_four, R.drawable.number_five};
+    String[] instruction_array_text = {"Prepare the biceps and tripceps of the subject's testing arm and the clavicle near the sternal notch",
+                                        "a. Briskly wipe the skin using an alcohol wipe to remove surface oils and other contaminants. Too much alcohol is desired as this causes the skin to dry",
+                                        "b. If dry skin cells are causing difficulties, these can be easily dislodged by dabbing the surface with medical grade tape. Ensure than no adhesive residue remains on the skin by wiping the areas with alcohol wipes",
+                                        "In cases when skin surface is persistently dry, a very samll amount of electrode gel can be placed on the EMG sensor contacts. \n\n Ensure that the prepared skin does not come into contact with any foreign object",
+                                        "Attach the Biceps and Triceps EMG sensors with disposable EMG electrodes (with the wires disconnected from the main module) on the middle of the subject's bicep snf the middle of the longhead of the tricep (parallel to the humerus)",
+                                        "Attach the Reference Electrode on the clavicle near the sternal notch."};
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment InstructionFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static BluetoothConnection.InstructionFragment newInstance(String param1, String param2) {
-        BluetoothConnection.InstructionFragment fragment = new BluetoothConnection.InstructionFragment();
+    public static InstructionFragment newInstance(int whichInstruction) {
+        InstructionFragment fragment = new InstructionFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putInt(ARG_PARAM1, whichInstruction);
+
         fragment.setArguments(args);
         return fragment;
     }
@@ -56,8 +44,7 @@ public class InstructionFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            instruction_key = getArguments().getInt(ARG_PARAM1);
         }
     }
 
@@ -65,45 +52,18 @@ public class InstructionFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_instruction, container, false);
-    }
+        View v = inflater.inflate(R.layout.fragment_instruction, container, false);
+        topPic = (ImageView)v.findViewById(R.id.ID_image_instruction_top);
+        botPic = (ImageView)v.findViewById(R.id.ID_image_instruction_bot);
+        instruction_one = (TextView)v.findViewById(R.id.ID_textview_instruction_top);
+        instruction_two = (TextView)v.findViewById(R.id.ID_textview_instruction_bot);
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
+        topPic.setImageResource(pic_resource_ids[instruction_key]);
+        botPic.setImageResource(pic_resource_ids[instruction_key+1]);
+        instruction_one.setText(instruction_array_text[instruction_key]);
+        instruction_two.setText(instruction_array_text[instruction_key+1]);
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
+        return v;
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 }
