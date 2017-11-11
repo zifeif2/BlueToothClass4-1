@@ -1,10 +1,12 @@
 package com.win16.bluetoothclass4.connect;
 
+import java.util.UUID;
+
 /**
  * Created by Rex on 2015/5/30.
  */
 public class Constant {
-    public static final String CONNECTTION_UUID = "00001101-0000-1000-8000-00805F9B34FB";
+    public static final UUID CONNECTTION_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     /**
      * start listening

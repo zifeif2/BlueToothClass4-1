@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.win16.bluetoothclass4.ClinicianDataActivity">
+
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ID_guideline_mts"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.25"
+        tools:layout_editor_absoluteY="206dp"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ID_guideline_mas"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.4"
+        tools:layout_editor_absoluteY="413dp"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ID_guideline_UPDRS"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.55"
+        tools:layout_editor_absoluteY="619dp"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ID_guideline_controls"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.70"
+        tools:layout_editor_absoluteY="619dp"
+        tools:layout_editor_absoluteX="0dp" />
+
+
+    <TextView
+        android:id="@+id/ID_clinician_name_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="sans-serif"
+        android:text="Clinician Name"
+        android:textSize="25dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/ID_spinner_clinician"
+        app:layout_constraintLeft_toLeftOf="@+id/ID_spinner_clinician"
+        app:layout_constraintTop_toTopOf="parent" />
+    <Spinner
+        android:id="@+id/ID_spinner_clinician"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="32dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginLeft="32dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="50dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        />
+
+    <TextView
+        android:id="@+id/ID_mts_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="0dp"
+        android:text="MTS "
+        android:textSize="25dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/ID_spinner_mts"
+        app:layout_constraintLeft_toLeftOf="@+id/ID_spinner_mts" />
+    <Spinner
+        android:id="@+id/ID_spinner_mts"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/ID_guideline_mts"
+        android:layout_marginRight="32dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginLeft="32dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:background="#81d2b2"/>
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="0dp"
+        android:text="MAS"
+        android:textSize="25dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/ID_spinner_mas"
+        app:layout_constraintLeft_toLeftOf="@+id/ID_spinner_mas" />
+    <Spinner
+        android:id="@+id/ID_spinner_mas"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/ID_guideline_mas"
+        android:layout_marginRight="32dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:background="#81d2b2"/>
+
+    <TextView
+        android:id="@+id/ID_udprs_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="25dp"
+        android:textStyle="bold"
+        tools:text="UDPRS"
+        android:layout_marginLeft="0dp"
+        app:layout_constraintLeft_toLeftOf="@+id/ID_spinner_updrs"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/ID_spinner_updrs"
+        />
+    <Spinner
+        android:id="@+id/ID_spinner_updrs"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginBottom="-2dp"
+        app:layout_constraintBottom_toTopOf="@+id/ID_guideline_UPDRS"
+        android:layout_marginRight="32dp"
+        app:layout_constraintHorizontal_bias="1.0"
+        android:layout_marginLeft="32dp"
+        android:background="#81d2b2"/>
+
+    <TextView
+        android:id="@+id/ID_controls_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Controls"
+        android:textSize="25dp"
+        android:textStyle="bold"
+        tools:text="Controls"
+        android:layout_marginLeft="0dp"
+        app:layout_constraintLeft_toLeftOf="@+id/ID_spinner_controls"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/ID_spinner_controls"
+        />
+    <Spinner
+        android:id="@+id/ID_spinner_controls"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginBottom="-2dp"
+        app:layout_constraintBottom_toTopOf="@+id/ID_guideline_controls"
+        android:layout_marginRight="32dp"
+        app:layout_constraintHorizontal_bias="1.0"
+        android:layout_marginLeft="32dp"
+        android:background="#81d2b2"/>
+
+
+
+</android.support.constraint.ConstraintLayout>
