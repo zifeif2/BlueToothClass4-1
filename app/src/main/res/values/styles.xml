@@ -8,4 +8,5 @@
     <color name="primary_color">#71CAA2</color>
     <color name="inactive_color">#9E9E9E</color>
     <color name="button_color">#ffffff</color>
+    <color name="color_black">#000000</color>
 </resources>
