@@ -17,11 +17,11 @@
         Triceps Status: %13$s\n, Extra Information: %14$s</string>
     <string name="data_recording">Recording Data</string>
     <string name="bluetooth_connection_instruction">Here are the instruction </string>
-    <string name="calibration_inst1">Instruct the subject to rest the arm
+    <string name="calibration_inst1">Instruct the subject to <b>rest the arm</b>\n
 Press the button below to determine biceps EMG sensor gain</string>
-    <string name="calibration_inst2">Instruct the subject to flex the biceps
+    <string name="calibration_inst2">Instruct the subject to <b>flex the biceps</b>\n
 Press the button below to determine biceps EMG sensor gain</string>
-    <string name="calibration_inst3">Instruct the subject to flex the triceps
+    <string name="calibration_inst3">Instruct the subject to <b>flex the triceps</b>\n
 Press the button below to determine triceps EMG sensor gain</string>
     <string name="datarecord_start">Start</string>
     <string name="datarecord_stop">Stop</string>
@@ -65,4 +65,11 @@ Press the button below to determine triceps EMG sensor gain</string>
         <item>10 in</item>
         <item>11 in</item>
     </string-array>
+    <string name="go_to_unfinished_step">Back to the Last Process</string>
+    <string name="Discard">Discard</string>
+    <string name="sensitivity_collect">detect sensitivity</string>
+    <string name="calibration_collect">Calibration start</string>
+    <string name="calibration_instruction">Attach the moving module on the subject’s wrist in neutral position. For passive flexion, put the moving module radius bone. For passive extension, put the moving module on the ulna bone.
+    \n Attach the main module. The main module should be attached to the midpoint of the subject’s humerus. The module should be facing laterally.</string>
+    <string name="unfinished_process_prompt">The app crushed last time before finishing collecting all of the data, do you wnat to continue the last process?</string>
 </resources>

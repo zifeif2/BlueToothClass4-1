@@ -6,48 +6,57 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 
 /**
  * Created by zifeifeng on 10/20/17.
  */
 
-public class FileWriter {
+public class MyFileWriter {
     private String filename;
-    FileOutputStream outputStream;
+    //FileOutputStream outputStream;
     File file;
     Context context;
-    static FileWriter mFileWriter;
+    private static FileWriter mFileWriter;
+    private static MyFileWriter mMyFileWriter;
     static String mUserId;
     public static final String filepath = "bluetoothclass4";
     private void _create(String userid, String initialContent){
         filename = userid+".txt";
+
         mUserId = userid;
         Shared.putBoolean(context, Shared.HAS_BEEN_SAHRED, false);
         Shared.putString(context, Shared.SUBJECT_ID, userid);
+
         File directory = new File(Environment.getExternalStorageDirectory()+File.separator+filepath);
         directory.mkdirs();
         file = new File(context.getExternalFilesDir(filepath), filename);
         try {
-            outputStream = new FileOutputStream(file);
-        }catch (IOException e){
-            Log.e("File Writer", "File not found");
+            mFileWriter = new FileWriter(file, true);
+        }catch (IOException e ){
+            Log.e("MyFileWriter", e.toString());
         }
+//        try {
+//            outputStream = new FileOutputStream(file);
+//        }catch (IOException e){
+//            Log.e("File Writer", "File not found");
+//        }
         Log.e("File create", "File is created in "+file.getAbsolutePath());
         writeData(initialContent);
     }
 
 
-    public static FileWriter get(String userid, String initialContent, Context mContext){
-        if(mFileWriter == null){
-            mFileWriter = new FileWriter(userid,mContext, initialContent);
+    public static MyFileWriter get(String userid, String initialContent, Context mContext){
+        if(mMyFileWriter == null){
+            mMyFileWriter = new MyFileWriter(userid,mContext, initialContent);
         }
         else if(!mUserId.equals(userid) && userid!=null){
-            mFileWriter.updateId(userid, initialContent);
+            mMyFileWriter.updateId(userid, initialContent);
         }
-        return mFileWriter;
+        return mMyFileWriter;
     }
-    private FileWriter(String userid, Context context,String initialContent){
+    private MyFileWriter(String userid, Context context, String initialContent){
         this.context = context;
         _create(userid, initialContent);
     }
@@ -55,7 +64,7 @@ public class FileWriter {
     public  void updateId(String userid, String initialContent){
         if(file!=null){
             try {
-                outputStream.close();
+                mFileWriter.close();
             }catch (Exception e){
 
             }
@@ -88,16 +97,23 @@ public class FileWriter {
 
     public void writeData(String str){
         try {
-            outputStream.write(str.getBytes());
+            mFileWriter.write(str);
+            Log.e("FileWriter", str);
         } catch (Exception e) {
             e.printStackTrace();
             Log.e("Write File", e.toString());
+        }finally {
+            try {
+                mFileWriter.flush();
+            }catch (IOException e){
+                Log.e("Filewriter flush", e.toString());
+            }
         }
     }
 
-    public void closeOutputStream() {
+    public void closeFileWriter() {
         try {
-            outputStream.close();
+            mFileWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

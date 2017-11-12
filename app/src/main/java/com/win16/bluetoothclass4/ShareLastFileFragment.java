@@ -1,11 +1,9 @@
 package com.win16.bluetoothclass4;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -14,14 +12,10 @@ import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
-import android.widget.RadioButton;
 
 import java.io.File;
 
-import static android.R.attr.button;
-import static android.R.attr.finishOnCloseSystemDialogs;
-import static com.win16.bluetoothclass4.FileWriter.filepath;
+import static com.win16.bluetoothclass4.MyFileWriter.filepath;
 
 /**
  * Created by zifeifeng on 10/23/17.
@@ -51,6 +45,7 @@ public class ShareLastFileFragment extends DialogFragment {
                         Shared.putBoolean(getActivity(), Shared.HAS_BEEN_SAHRED, true);
                     }
                 })
+                .setCancelable(false)
                 .create();
     }
 

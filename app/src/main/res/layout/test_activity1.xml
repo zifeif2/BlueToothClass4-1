@@ -27,5 +27,7 @@
             android:layout_margin="10dp"
             android:id="@+id/btn_section3"/>
     </LinearLayout>
+    <include layout="@layout/progress_bar"
+        android:id="@+id/progress_bar_layout"/>
 
 </LinearLayout>

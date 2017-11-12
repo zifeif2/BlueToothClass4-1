@@ -15,7 +15,6 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -23,7 +22,6 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 //import com.win16.bluetoothclass4.connect.AcceptThread;
@@ -32,17 +30,19 @@ import com.win16.bluetoothclass4.connect.Constant;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
+
+import static com.win16.bluetoothclass4.Shared.ACTIVITY_TRACKER;
+import static com.win16.bluetoothclass4.Shared.TO_UNFINISH;
+
 
 /**
  * Created by Rex on 2015/5/27.
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MyDataHandler.PopupFragment {
 
     public static final String EXTRA_SUBJECT_ID = "com.win16.bluetoothclass4.subject_id";
     public static final String EXTRA_SUBJECT_GENDER = "com.win16.bluetoothclass4.subject_gender";
@@ -59,6 +59,9 @@ public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_BICOUNT = "com.win16.bluetoothclass4.bicount";
     public static final String EXTRA_TRICOUNT = "com.win16.bluetoothclass4.tricount";
     public static final String EXTRA_CALLER = "com.win16.bluetoothclass4.caller";
+    public static final String EXTRA_UNFINISH= "com.win16.bluetoothclass4.unfinish";
+    private static final String DIALOG_FAIL = "fail";
+    private static final String DIALOG_SUCCEED = "succeed";
     public static final int REQUEST_CODE = 0;
     private List<BluetoothDevice> mDeviceList = new ArrayList<>();
     private List<BluetoothDevice> mBondedDeviceList = new ArrayList<>();
@@ -69,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     private Toast mToast;
    // private AcceptThread mAcceptThread;
     private ConnectThread mConnectThread;
-    private Handler mUIHandler = new MyHandler();
+    private Handler mUIHandler ;
     String subjectID = null;
     String categorySelected;
     String heightFeet;
@@ -81,49 +84,50 @@ public class MainActivity extends AppCompatActivity {
     String subjectGender;
 
     private Toolbar myToolbar;
-    private TextView position_tv;
-    private TextView velocity_tv;
-    private TextView resistance_tv;
-    private TextView bimuscle_tv;
-    private TextView trimuscletv;
-    private TextView server_tv;
-    private Button start_btn;
-    private Button pause_btn;
-    private Button stop_btn;
     private Button find_device_btn;
     private Button goback_btn;
+    private Button show_bounded_btn;
     private Button next_btn;
+    private Button calibration_btn;
 
     private float maxPosition=0;
     private float maxVelocity = 0;
     private float maxResistant = 0;
     BluetoothDevice device;
-    FileWriter mFileWriter;
+    MyFileWriter mMyFileWriter;
     int bi_sample_counter = 0;
     int tri_sample_counter = 0;
     private static final float THRESHOLD = 1.0f;
     private CountDownTimer mCountDownTimer;
+    private CountDownTimer mCountdownTimerAfterStart;
     File report_file;
     FileOutputStream outputStream;
+    private Boolean unfinished;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initActionBar();
+       // initActionBar();
         setContentView(R.layout.activity_main);
+        Intent i = getIntent();
+        unfinished = i.getBooleanExtra(EXTRA_UNFINISH, false);
+        forearmLength = i.getStringExtra(EXTRA_FOREARM_LENGTH);
+        subjectID = i.getStringExtra(EXTRA_SUBJECT_ID);
         initUI();
 
         registerBluetoothReceiver();
         mController.turnOnBlueTooth(this, REQUEST_CODE);
-        Intent i = getIntent();
-        forearmLength = i.getStringExtra(EXTRA_FOREARM_LENGTH);
-        subjectID = i.getStringExtra(EXTRA_SUBJECT_ID);
-        mFileWriter = FileWriter.get(subjectID,  composeInitialContent(),this);
+
+        Shared.putString(getApplicationContext(), EXTRA_SUBJECT_ID, subjectID);
+        if(!unfinished) {
+            Shared.putInt(getApplicationContext(), ACTIVITY_TRACKER, 0);
+            Shared.putBoolean(getApplicationContext(), TO_UNFINISH, true);
+        }
+        mMyFileWriter = MyFileWriter.get(subjectID,  composeInitialContent(),this);
+        mUIHandler = new MyDataHandler(MainActivity.this);
         mConnectThread = ConnectThread.get(device, mController.getAdapter(), mUIHandler);
-//        if(mConnectThread!=null)
-//            mConnectThread.start();
-        mCountDownTimer = new CountDownTimer(3*1000, 250) {
+        mCountDownTimer = new CountDownTimer(1*1000, 250) { //apple
             int secondsLeft = 0;
             @Override
             public void onTick(long ms) {
@@ -131,23 +135,37 @@ public class MainActivity extends AppCompatActivity {
                 if (Math.round((float)ms / 1000.0f) != secondsLeft)
                 {
                     secondsLeft = Math.round((float)ms / 1000.0f);
-                    start_btn.setText(""+secondsLeft );
+                    calibration_btn.setText(secondsLeft + " second left before start");
                 }
             }
 
             @Override
             public void onFinish() {
 //                startService(stopRingtoneIntent);
-                say("q");//if there is not enough storage space, can't send data
-                mFileWriter.writeData("\n-----------------------start to write--------------------\n");
-                start_btn.setText("Recording");
+                say("q");
+                next_btn.setEnabled(true);
+                mCountdownTimerAfterStart.start();
             }
         };
+        mCountdownTimerAfterStart = new CountDownTimer(1*1000, 1000) {//apple
+            int secondsLeft = 0;
+            @Override
+            public void onTick(long ms) {
+                if (Math.round((float)ms / 1000.0f) != secondsLeft)
+                {
+                    secondsLeft = Math.round((float)ms / 1000.0f);
+                    calibration_btn.setText(secondsLeft + " second left ");
+                }
+            }
+            @Override
+            public void onFinish() {
+                say("s");
+                Toast.makeText(MainActivity.this, "Finish recording", Toast.LENGTH_SHORT).show();
+                calibration_btn.setText("Finish recording");
+                next_btn.setEnabled(true);
 
-        //outputStream = openFileOutput()
-////J
-//        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter("sentArduinoData"));
-//        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+            }
+        };
 
     }
 
@@ -203,18 +221,21 @@ public class MainActivity extends AppCompatActivity {
                 BluetoothDevice remoteDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if( remoteDevice == null ) {
                     showToast("no device");
-                    server_tv.setText(getString(R.string.no_connection));
                     return;
                 }
                 int status = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE,0);
                 if( status == BluetoothDevice.BOND_BONDED) {
                     showToast("Bonded " + remoteDevice.getName());
+                    succeed();
+                    calibration_btn.setEnabled(true);
+
                 }
                 else if( status == BluetoothDevice.BOND_BONDING){
                     showToast("Bonding " + remoteDevice.getName());
                 }
                 else if(status == BluetoothDevice.BOND_NONE){
                     showToast("Not bond " + remoteDevice.getName());
+                    fail();
                 }
             }
         }
@@ -225,8 +246,18 @@ public class MainActivity extends AppCompatActivity {
         mListView = (ListView) findViewById(R.id.device_list);
         mAdapter = new DeviceAdapter(mDeviceList, this);
         mListView.setAdapter(mAdapter);
-        mListView.setOnItemClickListener(bindDeviceClick);
+        mListView.setOnItemClickListener(bindedDeviceClick);
         find_device_btn = (Button) findViewById(R.id.find_device);
+        show_bounded_btn = (Button) findViewById(R.id.bounded_device);
+        show_bounded_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mBondedDeviceList = mController.getBondedDeviceList();
+                //J mBondedDeviceList.addAll(mBluetoothAdapter.getBondedDevices());
+                mAdapter.refresh(mBondedDeviceList);
+                mListView.setOnItemClickListener(bindedDeviceClick);
+            }
+        });
         myToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
         find_device_btn.setOnClickListener(new View.OnClickListener() {
@@ -247,73 +278,21 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
-//        position_tv = (TextView) findViewById(R.id.datarecord_position);
-//        resistance_tv = (TextView) findViewById(R.id.datarecord_resistance);
-//        velocity_tv = (TextView) findViewById(R.id.datarecord_velocity);
-//        bimuscle_tv = (TextView) findViewById(R.id.datarecord_bimuscleemg);
-//        trimuscletv = (TextView) findViewById(R.id.datarecord_trisemg);
-//        server_tv = (TextView) findViewById(R.id.server_tv);
-//        start_btn = (Button) findViewById(R.id.datarecord_start);
-//        pause_btn =(Button) findViewById(R.id.datarecord_pause);
-//        stop_btn =(Button) findViewById(R.id.datarecord_stop);
-//        start_btn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if(!mFileWriter.isExternalStorageWritable()){
-//                    Toast.makeText(MainActivity.this, "Do not have storage to write data", Toast.LENGTH_SHORT).show();
-//                    return;
-//                }
-//                mCountDownTimer.start();
-//                start_btn.setClickable(false);
-//                pause_btn.setClickable(true);
-//
-//            }
-//        });
-//
-//        pause_btn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                say("s");
-//                mCountDownTimer.cancel();
-//                //start_btn_pressed = false;
-//                start_btn.setClickable(true);
-//                pause_btn.setClickable(false);
-//                start_btn.setText("Start");
-//
-//            }
-//        });
-//
-//        stop_btn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                say("s");
-//                start_btn.setText("Start");
-//                mFileWriter.writeData("\n-----------------------stop to write--------------------\n");
-//                mCountDownTimer.cancel();
-//                //start_btn_pressed = false;
-//                start_btn.setClickable(true);
-//                pause_btn.setClickable(false);
-//                //mFileWriter.closeOutputStream();
-//                Intent intent = new Intent(MainActivity.this, TestActivity1.class);
-//                intent.putExtra(EXTRA_POSITION, maxPosition);
-//                intent.putExtra(EXTRA_VELOCITY, maxVelocity);
-//                intent.putExtra(EXTRA_RESISTANT, maxResistant);
-////                intent.putExtra(EXTRA_SUBJECT_ID, getIntent().getStringExtra(EXTRA_SUBJECT_ID));
-//                intent.putExtra(EXTRA_CATEGORY_SELECTED, getIntent().getStringExtra(EXTRA_CATEGORY_SELECTED));
-////                intent.putExtra(EXTRA_HEIGHT_FEET, getIntent().getStringExtra(EXTRA_HEIGHT_FEET));
-////                intent.putExtra(EXTRA_HEIGHT_INCH, getIntent().getStringExtra(EXTRA_HEIGHT_INCH));
-////                intent.putExtra(EXTRA_FOREARM_LENGTH, getIntent().getStringExtra(EXTRA_FOREARM_LENGTH));
-////                intent.putExtra(EXTRA_SUBJECT_WEIGHT, getIntent().getStringExtra(EXTRA_SUBJECT_WEIGHT));
-////                intent.putExtra(EXTRA_SUBJECT_DOB, getIntent().getStringExtra(EXTRA_SUBJECT_DOB));
-////                intent.putExtra(EXTRA_SUBJECT_TEST_DATE, getIntent().getStringExtra(EXTRA_SUBJECT_TEST_DATE));
-//                intent.putExtra(EXTRA_BICOUNT, bi_sample_counter);
-//                intent.putExtra(EXTRA_TRICOUNT, tri_sample_counter);
-//                startActivity(intent);
-//            }
-//        });
 
-
+        calibration_btn = (Button) findViewById(R.id.btn_calibration_collect);
+        if(unfinished){
+            calibration_btn.setVisibility(View.GONE);
+        }
+        calibration_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mMyFileWriter.writeData("----------------calibrate----------------\n");
+                calibration_btn.setText("Calibrating");
+                mCountDownTimer.start();
+            }
+        });
     }
+
 
     @Override
     protected void onDestroy() {
@@ -327,11 +306,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
 
     private void showToast(String text) {
 
@@ -354,7 +328,7 @@ public class MainActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.enable_visiblity) {
             //mController.enableVisibly(this);
-            mFileWriter.writeData("hello\n");
+            mMyFileWriter.writeData("hello\n");
         }
         if( id == R.id.find_device) {
             //look for device
@@ -373,7 +347,6 @@ public class MainActivity extends AppCompatActivity {
             if( mConnectThread != null) {
                 mConnectThread.cancel();
                 mConnectThread = null;
-                server_tv.setText(getString(R.string.no_connection));
             }
         }
         else if( id == R.id.say_hi_to_test) {
@@ -398,7 +371,6 @@ public class MainActivity extends AppCompatActivity {
         else{
             Log.e("Main Activity", "mConnect Thread is null");
         }
-        // J mBluetoothConnection.write(word.getBytes());
     }
 
     private AdapterView.OnItemClickListener bindDeviceClick = new AdapterView.OnItemClickListener() {
@@ -416,6 +388,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
              device = mBondedDeviceList.get(i);
+            Log.e("OnItemClick", i+" position is bounded");
             if( mConnectThread != null) {
                 mConnectThread.cancel();
                 mConnectThread = null;
@@ -445,107 +418,52 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void writeData(String str){
-        if(outputStream == null) {
-            try {
-                outputStream = openFileOutput(subjectID + ".txt", Context.MODE_PRIVATE);
-                outputStream.write("get to main activity".getBytes());
-                outputStream.write("write the second time".getBytes());
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.e("Write File", e.toString());
+    @Override
+    public void succeed() {
+        Bundle bundle = new Bundle();
+        bundle.putString(PositiveResultFragment.ARG_RESULT, "Connection to "+device.getName()+" Succeed");
+        if(unfinished){
+            int step = Shared.getInt(getApplicationContext(), ACTIVITY_TRACKER, 1);
+            Log.e("The step is ", ""+step);
+            Intent i;
+            switch (step){
+                case 1:
+                    i = new Intent(MainActivity.this, PreRecordActivity.class);
+                    break;
+                case 2:
+                    i = new Intent(MainActivity.this,TestActivity1.class);
+                    break;
+                default:
+                    i = new Intent(MainActivity.this, PreRecordActivity.class);
+
             }
+            i.putExtra(EXTRA_SUBJECT_ID, subjectID);
+            i.putExtra(EXTRA_FOREARM_LENGTH, forearmLength);
+            startActivity(i);
+            return ;
         }
-        else{
-            try {
-                outputStream.write("write for the third time".getBytes());
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.e("Write File", e.toString());
-            }
-        }
+        PositiveResultFragment dialog = new PositiveResultFragment();
+        dialog.setArguments(bundle);
+        dialog.show(getSupportFragmentManager(),DIALOG_SUCCEED);
+        calibration_btn.setEnabled(true);
     }
 
-    private class MyHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case Constant.MSG_START_LISTENING:
-                    setProgressBarIndeterminateVisibility(true);
-                    break;
-                case Constant.MSG_FINISH_LISTENING:
-                    setProgressBarIndeterminateVisibility(false);
-                    break;
-                case Constant.MSG_GOT_DATA:
-                        String str = String.valueOf(msg.obj);
-                        //updateData(str);
-                        mFileWriter.writeData(str);
-                        Log.e("receiving data", "receiving data");
-                    break;
-                case Constant.MSG_ERROR:
-                    showToast("error: "+String.valueOf(msg.obj));
-                    break;
-                case Constant.MSG_CONNECTED_TO_SERVER:
-                    String name = String.valueOf(msg.obj);
-                    showToast("Connected to Server "+name);
-                    server_tv.setText("Connected to Server "+name);
-                    break;
-            }
-        }
+    @Override
+    public void fail() {
+        Bundle bundle = new Bundle();
+        bundle.putString(NegativeResultFragment.ARG_RESULT, "Connection Fail");
+        NegativeResultFragment dialog = new NegativeResultFragment();
+        dialog.setArguments(bundle);
+        dialog.show(getSupportFragmentManager(),DIALOG_FAIL);
     }
 
-    private void updateData(String str){
-        if(str.length() < 10){
-            position_tv.setText(str);
-            velocity_tv.setText(str);
-            bimuscle_tv.setText(str);
-            trimuscletv.setText(str);
-            resistance_tv.setText(str);
-            return;
-        }
-        else{
-            String[] value = str.split(",");
-            if(value.length < 5 ||str.contains("q")) {
-                Log.e("Main Activity", "omit data "+value.length);
 
-                return;
-            }
-            float tmpposition=0;
-            float tmpv=0;
-            float tmpr =0;
-            float bi_tmp=0;
-            float tri_tmp=0;
-            try {
-                 tmpposition = Math.abs(Float.parseFloat(value[1]));
-                 tmpv = Math.abs(Float.parseFloat(value[2]));
-                 tmpr = Math.abs(Float.parseFloat(value[0]));
-                 bi_tmp = Math.abs(Float.parseFloat(value[3]));
-                 tri_tmp = Math.abs(Float.parseFloat(value[4]));
-            }
-            catch (Exception e){
-                for(String i: value)
-                    Log.e("invalid_Data", i);
 
-            }
-            position_tv.setText(value[1]);
-            velocity_tv.setText(value[2]);
-            bimuscle_tv.setText(value[3]);
-            trimuscletv.setText(value[4]);
-            bi_sample_counter = bi_tmp > THRESHOLD? bi_sample_counter+1: 0;
-            tri_sample_counter = tri_tmp > THRESHOLD? tri_sample_counter+1: 0;
-            tmpr = Float.parseFloat(forearmLength)*tmpr;
-            String s = String.format("%.2f", tmpr);
-            resistance_tv.setText(s);
-            maxPosition = maxPosition < tmpposition? tmpposition: maxPosition;
-            maxResistant = maxResistant < tmpr? tmpr: maxResistant;
-            maxVelocity = maxVelocity < tmpv? tmpv: maxVelocity;
-        }
-
-    }
 
     private String composeInitialContent(){
         Intent i = getIntent();
+        if(unfinished)
+            return "";
         subjectID = i.getStringExtra(EXTRA_SUBJECT_ID);
         categorySelected = i.getStringExtra(EXTRA_CATEGORY_SELECTED);
         heightFeet = i.getStringExtra(EXTRA_HEIGHT_FEET);

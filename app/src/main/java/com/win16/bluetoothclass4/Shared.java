@@ -12,11 +12,17 @@ public class Shared {
     private static final String CONFIGS = "configs";
     public static final String SUBJECT_ID = "subject_id";
     public static final String HAS_BEEN_SAHRED= "hasbeenshared";
+    public static final String STEP_TRACKER ="steptracker";
+    public static final String ACTIVITY_TRACKER = "activity_tracker";
     private static SharedPreferences msp;
+    public static final String LAST_USERID = "last_user_id";
     private static SharedPreferences mPreferences=null;
-
     private static final String SHARED_PREFERNECE_NAME="name";
     private static final String TAG="SharedPreference";
+    public static final String TO_UNFINISH = "un_unfinish";
+    public static final String FINISH1 = "finish1";
+    public static final String FINISH2 = "finish2";
+    public static final String FINISH3 = "finish3";
 
 
 

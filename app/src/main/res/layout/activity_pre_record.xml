@@ -2,8 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <include android:id="@+id/toolbar"
-        layout="@layout/main_tool_bar"/>
+    <include
+        layout="@layout/main_tool_bar"
+        android:id="@+id/toolbar"
+        />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,46 +14,49 @@
         android:orientation="horizontal"
         android:layout_margin="5dp"
         >
-        <TextView
+        <Button
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="@string/calibration_inst1"
-            android:id="@+id/tv_instruction1"
-            android:padding="10dp"
+            android:id="@+id/btn_instruction1"
+            android:padding="20dp"
             android:gravity="center_vertical"
-            android:textColor="@color/inactive_color"/>
+            android:background="@android:color/transparent"
+            android:textColor="@color/color_black"/>
 
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
-        <TextView
+        <Button
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="@string/calibration_inst2"
-            android:id="@+id/tv_instruction2"
-            android:padding="10dp"
+            android:id="@+id/btn_instruction2"
+            android:padding="20dp"
             android:gravity="center_vertical"
+            android:background="@android:color/transparent"
             android:textColor="@color/inactive_color"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
-        <TextView
+        <Button
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="@string/calibration_inst3"
-            android:id="@+id/tv_instruction3"
-            android:padding="10dp"
+            android:id="@+id/btn_instruction3"
+            android:padding="20dp"
             android:gravity="center_vertical"
+            android:background="@android:color/transparent"
             android:textColor="@color/inactive_color"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="3"
+        android:layout_weight="1"
         android:gravity="center">
         <Button
             android:layout_width="250dp"

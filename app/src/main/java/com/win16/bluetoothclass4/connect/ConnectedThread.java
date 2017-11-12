@@ -1,20 +1,12 @@
 package com.win16.bluetoothclass4.connect;
 
-import android.app.Service;
 import android.bluetooth.BluetoothSocket;
-import android.content.Intent;
 import android.os.Handler;
-import android.os.IBinder;
-import android.os.SystemClock;
-import android.support.annotation.Nullable;
 import android.util.Log;
-
-import com.win16.bluetoothclass4.FileWriter;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.Socket;
 import java.util.Arrays;
 
 import static com.win16.bluetoothclass4.connect.Constant.MSG_GOT_DATA;

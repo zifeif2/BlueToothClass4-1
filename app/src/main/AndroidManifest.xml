@@ -26,6 +26,7 @@
         </activity>
         <activity android:name=".SummaryActivity"></activity>
         <activity android:name=".TestActivity1"></activity>
+        <activity android:name=".PreRecordActivity"></activity>
     </application>
 
 </manifest>

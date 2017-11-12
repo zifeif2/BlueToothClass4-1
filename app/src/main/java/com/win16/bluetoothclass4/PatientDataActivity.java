@@ -69,6 +69,11 @@ public class PatientDataActivity extends AppCompatActivity {
             ShareLastFileFragment dialog = new ShareLastFileFragment();
             dialog.show(getSupportFragmentManager(), "share_last_file");
         }
+        if(Shared.getBoolean(this, Shared.TO_UNFINISH)){
+            UnfinishedPorgressFragment dialog = new UnfinishedPorgressFragment();
+            dialog.show(getSupportFragmentManager(), "back_to_unfinished_process");
+        }
+
         //Initialize items
         subjectID_editText = (EditText)findViewById(R.id.patient_ID);
         category_Spinner = (Spinner) findViewById(R.id.patient_category_spinner);
