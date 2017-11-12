@@ -18,6 +18,7 @@ import static com.win16.bluetoothclass4.MainActivity.EXTRA_CALLER;
 import static com.win16.bluetoothclass4.MainActivity.EXTRA_SUBJECT_ID;
 import static com.win16.bluetoothclass4.MainActivity.EXTRA_UNFINISH;
 import static com.win16.bluetoothclass4.MyFileWriter.filepath;
+import static com.win16.bluetoothclass4.MyFileWriter.get;
 import static com.win16.bluetoothclass4.Shared.ACTIVITY_TRACKER;
 import static com.win16.bluetoothclass4.Shared.LAST_USERID;
 import static com.win16.bluetoothclass4.Shared.SUBJECT_ID;
@@ -52,6 +53,8 @@ public class UnfinishedPorgressFragment extends DialogFragment {
                         Shared.putBoolean(getActivity(), Shared.HAS_BEEN_SAHRED, true);
                         Shared.putInt(getActivity(), Shared.ACTIVITY_TRACKER, 0);
                         Shared.putInt(getActivity(), Shared.STEP_TRACKER, 0);
+                        Shared.putBoolean(getActivity(), Shared.TO_UNFINISH, false);
+
                     }
         })
                 .create();

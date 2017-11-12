@@ -40,6 +40,7 @@ public class DataRecordActivity extends AppCompatActivity {
     private static String TEST_TERM;
     int lowerbounce = 40;
     int higherbounce = 100;
+
 //done step is the number of the steps that is done == the step number that need to be done next
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +50,7 @@ public class DataRecordActivity extends AppCompatActivity {
         done_step = step = Shared.getInt(getApplicationContext(), RECORD_STEP_TRACKER, 0);
         Log.e("done step", ""+done_step);
         initUI();
+
         mMyFileWriter = MyFileWriter.get(null, null, null);
         mConnectThread = ConnectThread.get(null, null, null); //use the connect thread to send command
         userid = getIntent().getStringExtra(MainActivity.EXTRA_SUBJECT_ID);
@@ -105,9 +107,6 @@ public class DataRecordActivity extends AppCompatActivity {
                     done_step = done_step <= step % 12 ? step % 12 + 1 : done_step;
                     Shared.putInt(getApplicationContext(), RECORD_STEP_TRACKER, done_step);
                     step++;
-                    if(done_step == 12){
-                        Shared.putBoolean(getApplicationContext(), TO_UNFINISH ,false);
-                    }
                     updateUI();
                 }
             }
@@ -128,7 +127,8 @@ public class DataRecordActivity extends AppCompatActivity {
                             btns[j].setImageResource(getCorrectResource(j, 1));
                         }
                     }
-                    btns[done_step].setImageResource(getCorrectResource(done_step, 0));
+                    if(done_step<12)
+                        btns[done_step].setImageResource(getCorrectResource(done_step, 0));
                     btns[i].setImageResource(getCorrectResource(i, 2));
                     break;
                 }
@@ -179,8 +179,10 @@ public class DataRecordActivity extends AppCompatActivity {
                 btns[i].setImageResource(getCorrectResource(i, 1));
                 btns[i].setEnabled(true);
             }
+        if(done_step<12) {
             btns[done_step].setImageResource(getCorrectResource(done_step, 2));
             btns[done_step].setEnabled(true);
+        }
 
     }
 
@@ -228,8 +230,10 @@ public class DataRecordActivity extends AppCompatActivity {
     private void updateUI(){
         if(step%12>0) {
             btns[step%12-1].setImageResource(getCorrectResource(step-1, 1));
-            btns[done_step].setImageResource(getCorrectResource(done_step, 2));
-            btns[done_step].setEnabled(true);
+            if(done_step <12) {
+                btns[done_step].setImageResource(getCorrectResource(done_step, 2));
+                btns[done_step].setEnabled(true);
+            }
         }
         else{
             btns[11].setImageResource(getCorrectResource(step, 1));

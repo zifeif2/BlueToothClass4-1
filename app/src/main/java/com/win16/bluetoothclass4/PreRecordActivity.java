@@ -18,6 +18,7 @@ import java.io.UnsupportedEncodingException;
 import static com.win16.bluetoothclass4.MainActivity.EXTRA_SUBJECT_ID;
 import static com.win16.bluetoothclass4.Shared.ACTIVITY_TRACKER;
 import static com.win16.bluetoothclass4.Shared.STEP_TRACKER;
+import static com.win16.bluetoothclass4.Shared.TO_UNFINISH;
 
 /**
  * Created by zifeifeng on 11/8/17.
@@ -45,7 +46,13 @@ public class PreRecordActivity extends AppCompatActivity {
         subjectID = getIntent().getStringExtra(EXTRA_SUBJECT_ID);
         initUI();
         Shared.putInt(getApplicationContext(), ACTIVITY_TRACKER, 1);
-        step = Shared.getInt(getApplicationContext(), STEP_TRACKER, 0);
+        if(Shared.getBoolean(getApplicationContext(), TO_UNFINISH, false)) {
+            step = Shared.getInt(getApplicationContext(), STEP_TRACKER, 0);
+        }
+        else{
+            step = 0;
+        }
+        Log.e("PrerecordActivity", "the step is " + step);
         initializeInstruction();
         mMyFileWriter = MyFileWriter.get(subjectID, "", PreRecordActivity.this);
         mConnectThread = ConnectThread.get(null, null, null);
