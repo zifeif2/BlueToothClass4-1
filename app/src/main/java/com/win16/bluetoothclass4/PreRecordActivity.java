@@ -79,7 +79,8 @@ public class PreRecordActivity extends AppCompatActivity {
             public void onFinish() {
                 say("s");
                 Toast.makeText(PreRecordActivity.this, "Finish recording", Toast.LENGTH_SHORT).show();
-                updateStep();
+               updateStep();
+
                 btn_start.setEnabled(true);
             }
         };
@@ -125,7 +126,7 @@ public class PreRecordActivity extends AppCompatActivity {
         next_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(PreRecordActivity.this, TestActivity1.class);
+                Intent i = new Intent(PreRecordActivity.this, DataRecordActivity.class);
                 i.putExtra(EXTRA_SUBJECT_ID, subjectID);
                 startActivity(i);
             }
@@ -244,6 +245,7 @@ public class PreRecordActivity extends AppCompatActivity {
                 btn_instruction1.setTextColor(getResources().getColor(R.color.inactive_color));
                 btn_instruction2.setTextColor(getResources().getColor(R.color.inactive_color));
                 btn_instruction3.setTextColor(getResources().getColor(R.color.inactive_color));
+                next_btn.setEnabled(true);
                 break;
         }
     }

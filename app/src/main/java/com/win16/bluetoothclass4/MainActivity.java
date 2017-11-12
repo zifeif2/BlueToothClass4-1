@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements MyDataHandler.Pop
         });
 
         calibration_btn = (Button) findViewById(R.id.btn_calibration_collect);
-        if(unfinished){
+        if(unfinished && Shared.getInt(getApplicationContext(), ACTIVITY_TRACKER, 0)!=0){
             calibration_btn.setVisibility(View.GONE);
         }
         calibration_btn.setOnClickListener(new View.OnClickListener() {
@@ -421,7 +421,11 @@ public class MainActivity extends AppCompatActivity implements MyDataHandler.Pop
     @Override
     public void succeed() {
         Bundle bundle = new Bundle();
-        bundle.putString(PositiveResultFragment.ARG_RESULT, "Connection to "+device.getName()+" Succeed");
+        String tmp = " device ";
+        if(device != null){
+            tmp = device.getName();
+        }
+        bundle.putString(PositiveResultFragment.ARG_RESULT, "Connection to "+tmp+" Succeed");
         if(unfinished){
             int step = Shared.getInt(getApplicationContext(), ACTIVITY_TRACKER, 1);
             Log.e("The step is ", ""+step);
@@ -431,7 +435,7 @@ public class MainActivity extends AppCompatActivity implements MyDataHandler.Pop
                     i = new Intent(MainActivity.this, PreRecordActivity.class);
                     break;
                 case 2:
-                    i = new Intent(MainActivity.this,TestActivity1.class);
+                    i = new Intent(MainActivity.this,DataRecordActivity.class);
                     break;
                 default:
                     i = new Intent(MainActivity.this, PreRecordActivity.class);

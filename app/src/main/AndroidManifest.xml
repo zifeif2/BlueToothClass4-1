@@ -27,6 +27,7 @@
         <activity android:name=".SummaryActivity"></activity>
         <activity android:name=".TestActivity1"></activity>
         <activity android:name=".PreRecordActivity"></activity>
+        <activity android:name=".DataRecordActivity"></activity>
     </application>
 
 </manifest>

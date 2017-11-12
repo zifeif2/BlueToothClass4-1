@@ -20,9 +20,7 @@ public class Shared {
     private static final String SHARED_PREFERNECE_NAME="name";
     private static final String TAG="SharedPreference";
     public static final String TO_UNFINISH = "un_unfinish";
-    public static final String FINISH1 = "finish1";
-    public static final String FINISH2 = "finish2";
-    public static final String FINISH3 = "finish3";
+    public static final String RECORD_STEP_TRACKER= "step_tracker";
 
 
 
@@ -64,9 +62,9 @@ public class Shared {
         sp.edit().putString(key, value).commit();
     }
 
-    public static boolean getBoolean(Context context, String key){
+    public static boolean getBoolean(Context context, String key, Boolean b){
         SharedPreferences sp = getSharedPreferencesCheck(context);
-        return sp.getBoolean(key, true);
+        return sp.getBoolean(key, b);
     }
 
     public static void putBoolean(Context context, String key, Boolean value){

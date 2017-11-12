@@ -65,11 +65,11 @@ public class PatientDataActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_patient_data);
-        if(!Shared.getBoolean(this, Shared.HAS_BEEN_SAHRED)){
+        if(!Shared.getBoolean(this, Shared.HAS_BEEN_SAHRED, true)){
             ShareLastFileFragment dialog = new ShareLastFileFragment();
             dialog.show(getSupportFragmentManager(), "share_last_file");
         }
-        if(Shared.getBoolean(this, Shared.TO_UNFINISH)){
+        if(Shared.getBoolean(this, Shared.TO_UNFINISH, false)){
             UnfinishedPorgressFragment dialog = new UnfinishedPorgressFragment();
             dialog.show(getSupportFragmentManager(), "back_to_unfinished_process");
         }

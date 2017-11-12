@@ -129,7 +129,6 @@ public class TestActivity1 extends Activity {
 
 
     private void say(String word) {
-
         if( mConnectThread != null) {
             try {
                 mConnectThread.sendData(word.getBytes("utf-8"));
@@ -140,7 +139,6 @@ public class TestActivity1 extends Activity {
         else{
             Log.e("Main Activity", "mConnect Thread is null");
         }
-        // J mBluetoothConnection.write(word.getBytes());
     }
 
 }
