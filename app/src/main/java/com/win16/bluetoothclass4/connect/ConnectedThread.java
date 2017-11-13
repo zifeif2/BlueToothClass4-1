@@ -86,7 +86,8 @@ public class ConnectedThread extends Thread{
             mmOutStream.write(bytes);
         } catch (IOException e) {
             Log.e("ConnectedThread write", "output Stream can't write data");
-            Log.e("CONNECTEDTHREAD", e.toString());
+            Log.e("CONNECTED THREAD", e.toString());
+
         }
     }
     public void cancel() {

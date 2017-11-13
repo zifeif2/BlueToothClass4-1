@@ -15,8 +15,11 @@ import com.win16.bluetoothclass4.connect.ConnectThread;
 
 import java.io.UnsupportedEncodingException;
 
+import static com.win16.bluetoothclass4.DataRecordActivity.FROM_PRERECORD_ACTIVITY;
 import static com.win16.bluetoothclass4.MainActivity.EXTRA_SUBJECT_ID;
 import static com.win16.bluetoothclass4.Shared.ACTIVITY_TRACKER;
+import static com.win16.bluetoothclass4.Shared.AVG_BICEPT;
+import static com.win16.bluetoothclass4.Shared.AVG_TRICEPT;
 import static com.win16.bluetoothclass4.Shared.STEP_TRACKER;
 import static com.win16.bluetoothclass4.Shared.TO_UNFINISH;
 
@@ -72,7 +75,7 @@ public class PreRecordActivity extends AppCompatActivity {
             public void onFinish() {
 //                startService(stopRingtoneIntent);
                 say("q");//if there is not enough storage space, can't send data
-                mMyFileWriter.writeData("\n-----------------------"+getTag()+"--------------------\n");
+                mMyFileWriter.writeData("\n"+getTag()+"\n");
                 mCountdownTimerAfterStart.start();
             }
         };
@@ -86,8 +89,15 @@ public class PreRecordActivity extends AppCompatActivity {
             public void onFinish() {
                 say("s");
                 Toast.makeText(PreRecordActivity.this, "Finish recording", Toast.LENGTH_SHORT).show();
-               updateStep();
-
+                updateStep();
+                if(step==11 || step==1) {
+                    float avg_bicept = mMyFileWriter.getAvgbicept();
+                    Shared.putFloat(getApplicationContext(), AVG_BICEPT, avg_bicept);
+                }
+                else if(step ==12 ||step==2){
+                    float avg_tricept =mMyFileWriter.getAvgtricept();
+                    Shared.putFloat(getApplicationContext(), AVG_TRICEPT, avg_tricept);
+                }
                 btn_start.setEnabled(true);
             }
         };
@@ -135,6 +145,7 @@ public class PreRecordActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent i = new Intent(PreRecordActivity.this, DataRecordActivity.class);
                 i.putExtra(EXTRA_SUBJECT_ID, subjectID);
+                i.putExtra(FROM_PRERECORD_ACTIVITY, true);
                 startActivity(i);
             }
         });

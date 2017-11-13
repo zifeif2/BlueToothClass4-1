@@ -69,7 +69,11 @@ Press the button below to determine triceps EMG sensor gain</string>
     <string name="Discard">Discard</string>
     <string name="sensitivity_collect">detect sensitivity</string>
     <string name="calibration_collect">Calibration start</string>
-    <string name="calibration_instruction">Attach the moving module on the subject’s wrist in neutral position. For passive flexion, put the moving module radius bone. For passive extension, put the moving module on the ulna bone.
-    \n Attach the main module. The main module should be attached to the midpoint of the subject’s humerus. The module should be facing laterally.</string>
+    <string name="calibration_instruction">1) Click SHOW VISIBLE DEVICES if this is the first time use and click the device that you want to pair\n 2)Click SHOW BOUNDED DEVICES and select the device to connect
+        \n 3)Attach the moving module on the subject’s wrist in neutral position. For passive flexion, put the moving module radius bone. For passive extension, put the moving module on the ulna bone.
+    \n 4)Attach the main module. The main module should be attached to the midpoint of the subject’s humerus. The module should be facing laterally.
+    \n 5) Click CALIBRATION START to start collecting data</string>
     <string name="unfinished_process_prompt">The app crushed last time before finishing collecting all of the data, do you wnat to continue the last process?</string>
+    <string name="mts_data">_mts: </string>
+    <string name="mas_data">_mas: </string>
 </resources>

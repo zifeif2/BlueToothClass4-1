@@ -21,7 +21,8 @@ public class Shared {
     private static final String TAG="SharedPreference";
     public static final String TO_UNFINISH = "un_unfinish";
     public static final String RECORD_STEP_TRACKER= "step_tracker";
-
+    public static final String AVG_TRICEPT = "avg_tricept";
+    public static final String AVG_BICEPT= "avg_bicept";
 
 
     private static SharedPreferences getSharePreferenceCheck(Context context){
@@ -82,7 +83,17 @@ public class Shared {
         SharedPreferences sp = getSharedPreferencesCheck(context);
         return sp.getInt(key, markup);
     }
+    //store int
+    public static void putFloat(Context context, String key, float value){
+        SharedPreferences sp=getSharedPreferencesCheck(context);
+        sp.edit().putFloat(key, value).commit();
+    }
 
+    //get int
+    public static float getFloat(Context context, String key, float markup){
+        SharedPreferences sp = getSharedPreferencesCheck(context);
+        return sp.getFloat(key, markup);
+    }
 
 
 }

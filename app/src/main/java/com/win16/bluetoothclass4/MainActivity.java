@@ -286,7 +286,7 @@ public class MainActivity extends AppCompatActivity implements MyDataHandler.Pop
         calibration_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mMyFileWriter.writeData("----------------calibrate----------------\n");
+                mMyFileWriter.writeData("calibrate\n");
                 calibration_btn.setText("Calibrating");
                 mCountDownTimer.start();
             }

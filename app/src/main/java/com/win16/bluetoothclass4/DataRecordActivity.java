@@ -5,9 +5,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,10 +21,17 @@ import com.win16.bluetoothclass4.connect.ConnectThread;
 
 import java.io.UnsupportedEncodingException;
 
+import javax.xml.datatype.Duration;
+
+import static android.R.attr.editable;
+import static android.R.attr.visibility;
+import static android.util.Log.e;
+import static android.view.View.GONE;
 import static com.win16.bluetoothclass4.Shared.ACTIVITY_TRACKER;
 import static com.win16.bluetoothclass4.Shared.HAS_BEEN_SAHRED;
 import static com.win16.bluetoothclass4.Shared.RECORD_STEP_TRACKER;
 import static com.win16.bluetoothclass4.Shared.TO_UNFINISH;
+import static com.win16.bluetoothclass4.Shared.getInt;
 
 /**
  * Created by zifeifeng on 11/11/17.
@@ -27,30 +39,51 @@ import static com.win16.bluetoothclass4.Shared.TO_UNFINISH;
 
 public class DataRecordActivity extends AppCompatActivity {
     ImageButton[] btns = new ImageButton[12];
+    int[] counters = new int[24];
+    int currentClick;
     Button btn_share;
     TextView textview_speed,  textview_bicep_active,  textview_tricep_active,  textview_flexion_title,  textview_extension_title;
-    TextView tv_flexion, tv_extension;
+//    EditText et_mts, et_mas;
     int done_step;
     int step;
+    int fastTest = 12;
+    CheckBox mSkipFast;
+    boolean[] has_done = new boolean[24];
     ConnectThread mConnectThread;
     MyFileWriter mMyFileWriter;
     String userid;
     CountDownTimer mCountdownTimerBeforeStart;
     CountDownTimer mCountdownTimerAfterStart;
+    public static String FROM_PRERECORD_ACTIVITY ="prerecordactivity";
     private static String TEST_TERM;
+    int lowestBounce = 5;
     int lowerbounce = 40;
     int higherbounce = 100;
-
+    int status = 0;
+    String f_mts, f_mas, e_mas, e_mts;
+    String[] status_array = {"Flexion", "Extension"};
 //done step is the number of the steps that is done == the step number that need to be done next
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
         Shared.putInt(getApplicationContext(), ACTIVITY_TRACKER, 2);
-        done_step = step = Shared.getInt(getApplicationContext(), RECORD_STEP_TRACKER, 0);
-        Log.e("done step", ""+done_step);
-        initUI();
+        if(Shared.getBoolean(getApplicationContext(), TO_UNFINISH, false) &&!getIntent().getBooleanExtra(FROM_PRERECORD_ACTIVITY, false)) {
+            done_step = step = Shared.getInt(getApplicationContext(), RECORD_STEP_TRACKER, 0);
+        }
+        else{
+            done_step = step = 0;
+        }
 
+        status = done_step >= 12? 1:0;
+        for(int i = 0; i <24; i++){
+            has_done[i] = false;
+        }
+        for(int i = 0; i < done_step; i++){
+            has_done[i] = true;
+        }
+        e("done step", ""+done_step);
+        initUI();
         mMyFileWriter = MyFileWriter.get(null, null, null);
         mConnectThread = ConnectThread.get(null, null, null); //use the connect thread to send command
         userid = getIntent().getStringExtra(MainActivity.EXTRA_SUBJECT_ID);
@@ -64,26 +97,26 @@ public class DataRecordActivity extends AppCompatActivity {
                 if (Math.round((float)ms / 1000.0f) != secondsLeft)
                 {
                     secondsLeft = Math.round((float)ms / 1000.0f);
-                    btn_share.setText(""+secondsLeft);
+                    btn_share.setText(""+secondsLeft+ " left before start ");
                 }
             }
 
             @Override
             public void onFinish() {
-                mMyFileWriter.writeData("\n---------------------trail"+step%12+"-----------------------\n");
+                mMyFileWriter.writeData("\ntrail"+step%12+"-"+status_array[status]+"\n");
                 say("q");//if there is not enough storage space, can't send data
                 mCountdownTimerAfterStart.start();
             }
         };
 
-        mCountdownTimerAfterStart = new CountDownTimer(1*1000, 250) {
+        mCountdownTimerAfterStart = new CountDownTimer(3*1000, 250) {
             int secondsLeft = 0;
             @Override
             public void onTick(long ms) {
                 if (Math.round((float)ms / 1000.0f) != secondsLeft)
                 {
                     secondsLeft = Math.round((float)ms / 1000.0f);
-                    btn_share.setText(""+secondsLeft);
+                    btn_share.setText(""+secondsLeft + " left");
 
                 }
             }
@@ -91,24 +124,36 @@ public class DataRecordActivity extends AppCompatActivity {
             @Override
             public void onFinish() {
                 say("s");
-                Toast.makeText(DataRecordActivity.this, "Finish recording", Toast.LENGTH_SHORT).show();
                 float speed = mMyFileWriter.getAvgNumber();
-                Log.e("speedavg", ""+speed);
+                Log.e("speedssss final", ""+speed);
                 int remainder= step%12;
                 btn_share.setText("SHARE");
-                if((remainder < 3 && speed>lowerbounce)||(remainder>5 &&remainder<9 && speed < higherbounce)&&(remainder<6 && remainder>2&&(speed<lowerbounce||speed>higherbounce)) ){
+
+                boolean active_tri = mMyFileWriter.triceptActive();
+                boolean active_bi =mMyFileWriter.biceptActive();
+                textview_bicep_active.setText(active_bi? "Active": "Passive");
+                textview_tricep_active.setText(active_tri?"Active": "Passive");
+                boolean b = (remainder < 3 && speed>lowestBounce&&speed<lowerbounce)||(remainder>=3 &&remainder<=5 && (speed < higherbounce&&speed>lowerbounce)) || (remainder<=8 && remainder>=6 && speed>higherbounce) ||remainder>8;
+                if(!b) {
                     Bundle bundle = new Bundle();
                     bundle.putString(NegativeResultFragment.ARG_RESULT, "Please adapt the speed");
                     NegativeResultFragment dialog = new NegativeResultFragment();
                     dialog.setArguments(bundle);
-                    dialog.show(getSupportFragmentManager(),"speed");
+                    dialog.show(getSupportFragmentManager(), "speed");
+                    mMyFileWriter.writeData("\nbad\n");
+                }
+                else if(active_bi||active_tri){
+                    mMyFileWriter.writeData("\nbad\n");
                 }
                 else {
-                    done_step = done_step <= step % 12 ? step % 12 + 1 : done_step;
+                    has_done[done_step] = true;
+                    done_step = done_step == currentClick+12*status ? done_step + 1 : done_step;
                     Shared.putInt(getApplicationContext(), RECORD_STEP_TRACKER, done_step);
                     step++;
-                    updateUI();
+                    Toast.makeText(getApplicationContext(), "Update steps"+"steps is " + step+" done step is "+done_step, Toast.LENGTH_LONG).show();
+                    status = done_step >= 12? 1:0;
                 }
+                updateUI();
             }
 
         };
@@ -118,21 +163,32 @@ public class DataRecordActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             int id = v.getId();
-            for(int i = 0; i < 12; i++){
-                if(btns[i].getId() == id){
-                    step = i+12;
-
-                    for(int j =0; j < done_step; j++){
-                        if(j!=i){
-                            btns[j].setImageResource(getCorrectResource(j, 1));
-                        }
+                for (int i = 0; i < 12; i++) {
+                    if (btns[i].getId() == id) {
+                        currentClick = i;
+                        step = i + 12;
+                        change_btns_with_hasdone();
+                        btns[currentClick].setImageResource(getCorrectResource(i, 2));
+                        break;
                     }
-                    if(done_step<12)
-                        btns[done_step].setImageResource(getCorrectResource(done_step, 0));
-                    btns[i].setImageResource(getCorrectResource(i, 2));
-                    break;
                 }
-            }
+
+//            else{
+//                for (int i = 0; i < 12; i++) {
+//                    if (btns[i].getId() == id) {
+//                        step = i + 12;
+//                        for (int j = 0; j < done_step-12; j++) {
+//                            if (j != i) {
+//                                btns[j].setImageResource(getCorrectResource(j, 1));
+//                            }
+//                        }
+//                        if (done_step < 24)
+//                            btns[done_step-12].setImageResource(getCorrectResource(done_step-12, 0));
+//                        btns[i].setImageResource(getCorrectResource(i, 2));
+//                        break;
+//                    }
+//                }
+//            }
 
             mCountdownTimerBeforeStart.start();
 
@@ -140,11 +196,78 @@ public class DataRecordActivity extends AppCompatActivity {
     };
     private void initUI(){
         textview_speed = (TextView) findViewById(R.id.ID_textview_speed);
+        mSkipFast = (CheckBox) findViewById(R.id.checkBox_skipfast);
+        mSkipFast.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b){
+                    for(int i = 6; i < 9; i++){
+                        has_done[i] = true;
+                        has_done[i+12] = true;
+                        btns[i].setVisibility(GONE);
+                    }
+                }
+                else{
+                    for(int i = 6; i < 9; i++){
+                        has_done[i] = false;
+                        has_done[i+12] = false;
+                        btns[i].setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+        });
         textview_bicep_active = (TextView) findViewById(R.id.ID_textview_bicep_active);
         textview_tricep_active = (TextView) findViewById(R.id.ID_textview_tricep_active);
         textview_flexion_title = (TextView) findViewById(R.id.ID_textview_flexion_title);
         textview_extension_title = (TextView) findViewById(R.id.ID_textview_extension_title);
+        textview_flexion_title.setOnClickListener( section_listener);
+        textview_extension_title.setOnClickListener(section_listener);
 
+
+//        et_mts.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable editable) {
+//                if(status==1){
+//                    e_mts = et_mts.getText().toString();
+//                }
+//                else{
+//                    f_mts = et_mts.getText().toString();
+//                }
+//                mMyFileWriter.writeData("\n"+status_array[status]+getResources().getString(R.string.mts_data) + et_mts.getText().toString()+"\n");
+//            }
+//        });
+//        et_mas.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable editable) {
+//                if(status==1){
+//                    e_mas = et_mas.getText().toString();
+//                }
+//                else{
+//                    f_mas = et_mas.getText().toString();
+//                }
+//                mMyFileWriter.writeData("\n"+status_array[status]+getResources().getString(R.string.mas_data) + et_mts.getText().toString()+"\n");
+//            }
+//        });
         btns[0] = (ImageButton) findViewById(R.id.ID_imagebutton_slow_1);
         btns[1] = (ImageButton) findViewById(R.id.ID_imagebutton_slow_2);
         btns[2] = (ImageButton) findViewById(R.id.ID_imagebutton_slow_3);
@@ -171,18 +294,49 @@ public class DataRecordActivity extends AppCompatActivity {
                 Shared.putBoolean(getApplicationContext(), TO_UNFINISH, false);
             }
         });
+        change_btns_with_hasdone();
+        btns[done_step%12].setImageResource(getCorrectResource(done_step, 2));
         initializeInstruction();
+        if(1==status){
+            textview_flexion_title.setBackgroundColor(getResources().getColor(R.color.inactive_color));
+            textview_extension_title.setBackgroundColor(getResources().getColor(R.color.primary_color));
+        }
     }
 
     private void initializeInstruction(){
-            for(int i = 0; i < done_step; i++){
-                btns[i].setImageResource(getCorrectResource(i, 1));
-                btns[i].setEnabled(true);
-            }
-        if(done_step<12) {
-            btns[done_step].setImageResource(getCorrectResource(done_step, 2));
-            btns[done_step].setEnabled(true);
-        }
+//        if(status == 0) {
+//            if(done_step>12){
+//                for (int i = 0; i < 12; i++) {
+//                    btns[i].setImageResource(getCorrectResource(i, 1));
+//                    btns[i].setEnabled(true);
+//                }
+//            } //if all of the section1 is finished
+//            for (int i = 0; i < done_step&&i<12; i++) {
+//                btns[i].setImageResource(getCorrectResource(i, 1));
+//                btns[i].setEnabled(true);
+//            }
+//            if (done_step < 12) {
+//                btns[done_step].setImageResource(getCorrectResource(done_step, 2));
+//                btns[done_step].setEnabled(true);
+//            }
+//        }
+//        else{
+//            //if it's in the second page
+//            if(done_step < 12){//there are less than 12
+//                for (int i = 0; i < 12; i++) {
+//                    btns[i].setImageResource(getCorrectResource(i, 0));
+//                    btns[i].setEnabled(true);
+//                }
+//            }
+//            for (int i = 0; i < done_step-12; i++) {
+//                btns[i].setImageResource(getCorrectResource(i, 1));
+//                btns[i].setEnabled(true);
+//            }
+//            if (done_step < 24) {
+//                btns[done_step].setImageResource(getCorrectResource(done_step, 2));
+//                btns[done_step].setEnabled(true);
+//            }
+//        }
 
     }
 
@@ -224,28 +378,106 @@ public class DataRecordActivity extends AppCompatActivity {
             }
         }
         else{
-            Log.e("Main Activity", "mConnect Thread is null");
+            e("Main Activity", "mConnect Thread is null");
         }
     }
     private void updateUI(){
-        if(step%12>0) {
-            btns[step%12-1].setImageResource(getCorrectResource(step-1, 1));
-            if(done_step <12) {
-                btns[done_step].setImageResource(getCorrectResource(done_step, 2));
-                btns[done_step].setEnabled(true);
-            }
+        change_btns_with_hasdone();
+        if(done_step<12){
+            btns[done_step].setImageResource(getCorrectResource(done_step, 2));
         }
         else{
-            btns[11].setImageResource(getCorrectResource(step, 1));
+            if(status == 0){
+                textview_flexion_title.setBackgroundColor(getResources().getColor(R.color.inactive_color));
+                textview_extension_title.setBackgroundColor(getResources().getColor(R.color.primary_color));
+                status=1;
+                change_btns_with_hasdone();
+            }
+            btns[done_step%12].setImageResource(getCorrectResource(done_step,2));
         }
+//        if(status == 0) {
+//
+//            if (step % 12 > 0) {
+//                btns[currentClick].setImageResource(getCorrectResource(currentClick, 1));
+//                btns[done_step-1].setImageResource(getCorrectResource(step - 1, 1));
+//                if (done_step < 12) {
+//                    btns[done_step].setImageResource(getCorrectResource(done_step, 2));
+//                    e("done_step", ""+done_step);
+//                    btns[done_step].setEnabled(true);
+//                }
+//            } else {
+//                btns[11].setImageResource(getCorrectResource(step - 1, 1));
+//                textview_extension_title.performClick();
+//            }
+//        }
+//        else{
+//            if (step % 12 > 0) {
+//                if(done_step-1-12>=0)
+//                    btns[currentClick].setImageResource(getCorrectResource(step - 1, 1));
+//                btns[step % 12 - 1].setImageResource(getCorrectResource(step - 1, 1));
+//                if (done_step < 23) {
+//                    btns[done_step-12].setImageResource(getCorrectResource(done_step, 2));
+//                    btns[done_step-12].setEnabled(true);
+//                    e("done_step", ""+done_step);
+//                }
+//            } else {
+//                btns[11].setImageResource(getCorrectResource(2,1));
+//                btns[0].setImageResource(getCorrectResource(0,2));
+//            }
+//        }
     }
     private void shareByEmail(){
         Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
         emailIntent.setType("message/rfc822").putExtra(Intent.EXTRA_EMAIL, new String[]{"77bisko@gmail.com"}).putExtra(android.content.Intent.EXTRA_SUBJECT, "Patient Data");
         String targetFilePath = MyFileWriter.getFilepath();
-        Log.e("share File", targetFilePath);
+        e("share File", targetFilePath);
         Uri attachmentUri = Uri.parse(targetFilePath);
         emailIntent.putExtra(android.content.Intent.EXTRA_STREAM, Uri.parse("file://" + attachmentUri));
         startActivity(emailIntent);
+    }
+
+    private void changeButton(){
+        if(status==1){//not in this state
+            textview_flexion_title.setBackgroundColor(getResources().getColor(R.color.primary_color));
+            textview_extension_title.setBackgroundColor(getResources().getColor(R.color.inactive_color));
+            status = 0;
+        }
+        else{
+            if(done_step< fastTest) return;
+            textview_flexion_title.setBackgroundColor(getResources().getColor(R.color.inactive_color));
+            textview_extension_title.setBackgroundColor(getResources().getColor(R.color.primary_color));
+            status = 1;
+        }
+    }
+    private View.OnClickListener section_listener = new View.OnClickListener(){
+        @Override
+        public void onClick(View view) {
+            changeButton();
+            change_btns_with_hasdone();
+            if(status==1 && done_step>12)
+                btns[done_step%12].setImageResource(getCorrectResource(done_step,2));
+            else if(status ==0 && done_step<12){
+                btns[done_step].setImageResource(getCorrectResource(done_step,2));
+            }
+        }
+    };
+    private void change_btns_with_hasdone(){
+        if(mSkipFast.isChecked()){
+            if(done_step==6){
+                done_step+=3;
+            }
+        }
+        for( int i = 0; i < 12; i++){
+            if(has_done[i+12*status]) {
+                btns[i].setImageResource(getCorrectResource(i, 1));
+                btns[i].setEnabled(true);
+            }
+            else {
+                btns[i].setImageResource(getCorrectResource(i, 0));
+                btns[i].setEnabled(false);
+            }
+        }
+
+            btns[done_step%12].setEnabled(true);
     }
 }

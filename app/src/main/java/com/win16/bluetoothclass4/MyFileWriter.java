@@ -1,14 +1,17 @@
 package com.win16.bluetoothclass4;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
+import android.view.ViewDebug;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+
+import static com.win16.bluetoothclass4.R.color.red;
 
 /**
  * Created by zifeifeng on 10/20/17.
@@ -18,7 +21,7 @@ public class MyFileWriter {
     private String filename;
     //FileOutputStream outputStream;
     File file;
-    private static float sum = 0;
+    private static float speed_sum = 0;
     private static int count=0;
     Context context;
     private static FileWriter mFileWriter;
@@ -26,7 +29,14 @@ public class MyFileWriter {
     private static String mUserId;
     public static Handler mHandlerToFront;
     public static final String filepath = "bluetoothclass4";
-    private static String speed;
+
+    private static int speed_count = 0;
+    private static int bicept_count=0;
+    private static float bicept_sum= 0;
+    private static float tricept_sum = 0;
+    private static int triept_count=0;
+    private static float avg_bicept=0;
+    private static float avg_tricept=0;
     private void _create(String userid, String initialContent){
         filename = userid+".txt";
 
@@ -105,12 +115,24 @@ public class MyFileWriter {
             String[] tmp = str.split(",");
             if(tmp.length>4){
                 count+=1;
-                sum += Math.abs(Float.parseFloat(tmp[2]));
-                speed = tmp[2];
+
+                float tmp_speed = Math.abs(Float.parseFloat(tmp[2]));
+                Log.e("speedssssss tmp[2]", tmp[2]);
+                if(tmp_speed > 20){
+                    speed_sum += tmp_speed;
+                    speed_count+=1;
+                }
+                bicept_count = Math.abs(Float.parseFloat(tmp[3]))>avg_bicept? bicept_count+1:0;
+                triept_count = Math.abs(Float.parseFloat(tmp[4]))>avg_tricept?triept_count+1:0;
             }
             else{
                 count = 0;
-                sum= 0;
+                bicept_count = 0;
+                triept_count = 0;
+                avg_bicept = Shared.getFloat(context, Shared.AVG_BICEPT, 0);
+                avg_tricept = Shared.getFloat(context, Shared.AVG_TRICEPT, 0);
+                speed_sum = 0;
+                speed_count =0;
             }
             Log.e("FileWriter", str);
         } catch (Exception e) {
@@ -138,11 +160,21 @@ public class MyFileWriter {
     }
 
     public static float getAvgNumber(){
-        float res = count==0? 0: sum/count;
+        Log.e("speedssssss sum_count", ""+speed_sum+"  "+speed_count);
+        float res = speed_count<30? 0: speed_sum /speed_count;
         return res;
     }
-    public static String getSpeed(){
-        return speed;
+    public static boolean biceptActive(){
+        return bicept_count>15000;
+    }
+    public static boolean triceptActive(){
+        return triept_count>15000;
     }
 
+    public static float getAvgbicept(){
+        return bicept_sum/count;
+    }
+    public static float getAvgtricept(){
+        return tricept_sum/count;
+    }
 }

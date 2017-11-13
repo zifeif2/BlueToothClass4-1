@@ -1,21 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+<android.support.constraint.ConstraintLayout
+
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <include android:id="@+id/toolbar"
         layout ="@layout/main_tool_bar"
-  />
+        android:layout_height="0dp"
+        android:layout_width="0dp"
+        tools:layout_editor_absoluteY="100dp"
+        tools:layout_editor_absoluteX="0dp" />
 
     <TextView
         android:id="@+id/ID_data_collection_title"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:background="#e0e0e0"
-        android:text="     Data Record"
+        android:text=" Data Record"
         android:gravity="center_vertical"
         android:textSize="20sp"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -378,37 +384,14 @@
                     android:paddingBottom="10dp"
                     android:orientation="horizontal"
                     android:weightSum="5">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical|center_horizontal"
-                        android:textSize="20dp"
-                        android:text="Score"
-                        android:background="#ffffff"
-                        android:layout_weight="2"/>
-                    <EditText
-                        android:id="@+id/ID_edittext_preference_mts"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:paddingLeft="5dp"
-                        android:paddingRight="5dp"
-                        android:background="@drawable/drawable_edittext_border"
-                        android:gravity="center_vertical|center_horizontal"
-                        style="@drawable/drawable_edittext_border"
-                        android:hint="MTS"
-                        android:inputType="number"
-                        android:layout_weight="1"/>
-                    <EditText
-                        android:id="@+id/ID_edittext_preference_mas"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical|center_horizontal"
-                        android:background="@drawable/drawable_edittext_border"
-                        android:hint="MAS"
-                        android:paddingLeft="5dp"
-                        android:paddingRight="5dp"
-                        android:inputType="number"
-                        android:layout_weight="1"/>
+                    <CheckBox
+                        android:text="SkipFast"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/checkBox_skipfast"
+
+                        />
+
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
@@ -435,6 +418,5 @@
         android:paddingLeft="100dp"
         android:paddingRight="100dp"
         />
-
-
 </android.support.constraint.ConstraintLayout>
+</ScrollView>
